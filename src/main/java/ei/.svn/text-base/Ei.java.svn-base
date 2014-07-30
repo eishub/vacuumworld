@@ -1,0 +1,47 @@
+package ei;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import com.agentfactory.eis.AbstractEISInterface;
+
+import vac.VacBot;
+import vac.VacWorld;
+
+import eis.exceptions.EntityException;
+import eis.exceptions.ManagementException;
+import eis.iilang.EnvironmentState;
+
+public class Ei extends AbstractEISInterface {
+	
+	private static final long serialVersionUID = 6104242799596441135L;
+	private static final String configFile = "conf/ita.conf";
+	VacWorld world;
+	final Map<String, VacBot> vacBots = new HashMap<String, VacBot>(); 
+	
+	public Ei() {
+		world = VacWorld.createFromConfig(configFile);
+		world.show();
+		
+		for (VacBot vacBot : world.getVacBots()) {
+			try {
+				addEntity(new VacBotEntity(vacBot));
+			} catch (EntityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		addAction(new EisLight());
+		addAction(new EisClean());
+		addAction(new EisMove());
+		try {
+			this.setState(EnvironmentState.PAUSED);
+		} catch (ManagementException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	// TODO: support percepts as notifications
+
+}
