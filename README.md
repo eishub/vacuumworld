@@ -40,3 +40,6 @@ All of these percepts except for the **task** percept are only available when th
 * The **clean** action will throw an ActException of type FAILURE if it is invoked while the VacBot is moving or cleaning.
 * No environment management commands are supported. The environment runs until it is terminated by the user or by the operating system.
 
+## Acknowledgement
+This environment was developed and provided by [Rem Collier](https://www.csi.ucd.ie/users/rem-collier) and [Howell Jordan](https://www.csi.ucd.ie/users/howell-jordan) from [UCD School of Computer Science and Informatics](https://www.csi.ucd.ie/).
+
