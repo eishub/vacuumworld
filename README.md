@@ -1,5 +1,6 @@
 # The Vacuum World
 
+<<<<<<< HEAD
 The vacuum environment is a 2-dimensional grid world, populated with fixed obstacles, dust, and vacuum cleaning robots called *VacBots*. The VacBots are controllable entities that can be controlled by agents. Their task is to move around the grid, avoiding the obstacles, and finding and cleaning the colour-ful dust.
 
 ## World Configuration
@@ -37,3 +38,8 @@ All of these percepts except for the **task** percept are only available when th
 * The **move** actions will throw an ActException of type FAILURE if it is invoked while the VacBot is moving or cleaning. If the moving VacBot meets another VacBot, a permanent obstacle, or the edge of the grid, it halts and throws an ActException of type FAILURE. The exception message indicates whether the failure was temporary (caused by another VacBot) or permanent (caused by a fixed obstacle or the edge of the grid).
 * The **clean** action will throw an ActException of type FAILURE if it is invoked while the VacBot is moving or cleaning.
 * No environment management commands are supported. The environment runs until it is terminated by the user or by the operating system.
+=======
+<img align="right" src="https://github.com/eishub/vacuumworld/wiki/vacuumworld.png"/>
+
+Vacuum World which robots need to clean
+>>>>>>> 14c05f44b16fdb296adaa8965b0c57175166abec
