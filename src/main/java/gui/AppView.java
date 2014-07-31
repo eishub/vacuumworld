@@ -39,7 +39,7 @@ public class AppView implements ModelListener {
 			}
 		});
 		
-		frame = new JFrame("VacWorld");
+		frame = new JFrame("Vacuum World");
 		GridView gridView = new GridView(grid);
 		grid.addListener(gridView);
 		frame.add(gridView);
