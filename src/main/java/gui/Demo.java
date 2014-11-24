@@ -1,36 +1,38 @@
 package gui;
 
-import actions.ImpossibleActionException;
-import actions.UnavailableActionException;
 import grid.Direction;
 import vac.VacBot;
 import vac.VacWorld;
+import actions.ImpossibleActionException;
+import actions.UnavailableActionException;
 
 public final class Demo {
-	
+
 	private VacWorld world;
-	
+
 	public static void main(String[] args) {
 		new Demo();
 	}
-	
+
 	private Demo() {
-		world = VacWorld.createFromConfig("conf/demo.conf");
+		world = VacWorld.createFromConfig("demo.conf");
 		world.show();
-		
+
 		VacBot[] vacBots = world.getVacBots();
 		for (VacBot vacBot : vacBots) {
 			// new StreamEventLogger(vacBot, System.out);
 			new RandomWalker(vacBot).start();
 		}
-		
+
 	}
-	
+
 	private static class RandomWalker extends Thread {
 		private final VacBot vacBot;
+
 		RandomWalker(VacBot vacBot) {
 			this.vacBot = vacBot;
 		}
+
 		public void run() {
 			while (true) {
 				try {
@@ -50,9 +52,17 @@ public final class Demo {
 					// Move temporarily blocked - never mind, try something else
 				}
 				for (int i = 0; i < 4; i++) {
-					try {Thread.sleep(200);} catch (InterruptedException e) {e.printStackTrace();}
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 					vacBot.setLightOn(true);
-					try {Thread.sleep(200);} catch (InterruptedException e) {e.printStackTrace();}
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 					vacBot.setLightOn(false);
 				}
 			}

@@ -300,9 +300,10 @@ public class VacWorld implements ModelListener {
 		Configuration configuration = new Configuration();
 		configuration.requireString(configLevel);
 		configuration.requireBoolean(configRegeneration);
+
 		try {
 			// Read configuration file
-			configuration.loadCloseAndCheck(new FileInputStream(configFile));
+			configuration.loadCloseAndCheck(configFile);
 			String level = configuration.getProperty(configLevel);
 			VacWorld world = null;
 			try {
