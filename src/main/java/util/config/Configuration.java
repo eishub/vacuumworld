@@ -116,24 +116,35 @@ public class Configuration extends Properties {
 			InvalidConfigurationException {
 		InputStream inputStream = null;
 		try {
-			URL url = getClass().getProtectionDomain().getCodeSource()
-					.getLocation();
-			Path p = Paths.get(url.getFile());
-			File configfile = p.getParent().resolve(filename).toFile();
-			if (!configfile.exists()) {
-				throw new FileNotFoundException("vacuum env can't open "
-						+ configfile);
-			}
-
+			File configfile = findFile(filename);
 			inputStream = new FileInputStream(configfile);
 			load(inputStream);
-			System.out.println("loaded configuration " + configfile);
+			System.out.println("loaded configuration from " + configfile);
 		} finally {
 			if (inputStream != null) {
 				inputStream.close();
 			}
 		}
 		this.check();
+	}
+
+	/**
+	 * Find a file with given filename in directory where our jar is.
+	 * 
+	 * @param filename
+	 *            filename, absolute or relative to path where our jar is.
+	 * @throws FileNotFoundException
+	 *             if file not found.
+	 */
+	public File findFile(String filename) throws FileNotFoundException {
+		URL url = getClass().getProtectionDomain().getCodeSource()
+				.getLocation();
+		Path p = Paths.get(url.getFile());
+		File file = p.getParent().resolve(filename).toFile();
+		if (!file.exists()) {
+			throw new FileNotFoundException("vacuum env can't open " + file);
+		}
+		return file;
 	}
 
 	/**

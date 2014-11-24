@@ -322,10 +322,12 @@ public class VacWorld implements ModelListener {
 					world = new VacWorld(levelSize);
 				}
 			} catch (NumberFormatException nfe) {
-				// Try to read level as a file - if that fails, create a default
-				// random level
+				// Try to read level as a file -
 				try {
-					world = new VacWorld(new FileInputStream(level));
+					world = new VacWorld(new FileInputStream(
+							configuration.findFile(level)));
+					// if this fails, create a default
+					// random level
 				} catch (FileNotFoundException fnfe) {
 					System.out.println("Level file \"" + level
 							+ "\" not found, generating random level.");
