@@ -24,7 +24,6 @@ import java.util.TimerTask;
 
 import util.config.Configuration;
 import util.config.InvalidConfigurationException;
-import util.config.PropertyTypeException;
 import actions.Action;
 
 /**
@@ -33,7 +32,7 @@ import actions.Action;
 public class VacWorld implements ModelListener {
 
 	private static final String configLevel = "level";
-	private static final String configRegeneration = "regeneration";
+	private static final String configRegeneration = "generation";
 
 	private static final int defaultSize = 4;
 	/**
@@ -290,12 +289,27 @@ public class VacWorld implements ModelListener {
 		view.close();
 	}
 
-	public void setRegeneratingDust() {
+	/**
+	 * Sets up the regenerator. Cleaned dust will re-appear at random place
+	 * between 0 and time seconds.
+	 * 
+	 * @param time
+	 *            speed of re-appearance of dust.
+	 */
+	public void setRegeneratingDust(float time) {
 		timer = new Timer();
 		grid.addListener(this);
 	}
 
-	public void setGeneratingDust() {
+	/**
+	 * starts the dust generator. Every square has a probabily P of getting new
+	 * dust every second.
+	 * 
+	 * @param newP
+	 *            the probability of dust appearing in a second.
+	 */
+	public void setGeneratingDust(float newP) {
+		P = newP;
 		generateTimer = new Timer();
 		generateTimer.schedule(new TimerTask() {
 			@Override
@@ -373,7 +387,7 @@ public class VacWorld implements ModelListener {
 	 */
 	public static VacWorld createVacWorld(Configuration configuration) {
 		configuration.requireString(configLevel);
-		configuration.requireBoolean(configRegeneration);
+		configuration.requireString(configRegeneration);
 		try {
 			configuration.check();
 		} catch (InvalidConfigurationException e1) {
@@ -382,6 +396,8 @@ public class VacWorld implements ModelListener {
 			e1.printStackTrace();
 			return new VacWorld(defaultSize);
 		}
+
+		// if we get here, we have a complete configuration.
 
 		VacWorld world = null;
 		String level = configuration.getProperty(configLevel);
@@ -422,15 +438,19 @@ public class VacWorld implements ModelListener {
 				world = new VacWorld(defaultSize);
 			}
 		}
-		// Apply regenerating dust if configured
-		try {
-			if (configuration.getPropertyAsBoolean(configRegeneration)) {
-				world.setGeneratingDust(); // HACK testing
 
-				// world.setRegeneratingDust();
-			}
-		} catch (PropertyTypeException e) {
-		} // Can't happen
+		// if we get here, we have a ready-to-run VacWorld.
+		// Apply regenerating dust if configured
+		String generate = configuration.getProperty(configRegeneration);
+		if (generate.endsWith("s")) {
+			// seconds after suck - regenerate
+			float time = Float.parseFloat(generate.replace("s", "").trim());
+			world.setRegeneratingDust(time);
+		} else if (generate.endsWith("%")) {
+			float P = Float.parseFloat(generate.replace("%", "").trim());
+			world.setGeneratingDust(P / 100.0f);
+		}
+
 		return world;
 	}
 }
