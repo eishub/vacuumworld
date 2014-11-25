@@ -100,9 +100,7 @@ public class Configuration extends Properties {
 	}
 
 	/**
-	 * Convenience method which loads the properties, closes the input stream,
-	 * and calls check(). Ignores the (highly unlikely) IOException thrown by
-	 * InputStream.close().
+	 * Convenience method which loads the properties.
 	 * 
 	 * @param inputStream
 	 *            InputStream to read the properties from.
@@ -110,9 +108,8 @@ public class Configuration extends Properties {
 	 *             If an IO error occurs while loading the properties from the
 	 *             stream.
 	 * @throws InvalidConfigurationException
-	 *             If the properties violate the requireXXX expectations.
 	 */
-	public void loadCloseAndCheck(String filename) throws IOException,
+	public void load(String filename) throws IOException,
 			InvalidConfigurationException {
 		InputStream inputStream = null;
 		try {
@@ -125,7 +122,6 @@ public class Configuration extends Properties {
 				inputStream.close();
 			}
 		}
-		this.check();
 	}
 
 	/**
@@ -156,6 +152,8 @@ public class Configuration extends Properties {
 	 * @throws NotEnoughElementsException
 	 *             if an array property does not have at least the minimum
 	 *             number of elements.
+	 * @throws InvalidConfigurationException
+	 *             * If the properties violate the requireXXX expectations.
 	 */
 	public void check() throws InvalidConfigurationException {
 		checkPropertiesNotEmpty(requiredStringProperties);

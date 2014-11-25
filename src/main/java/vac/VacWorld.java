@@ -296,62 +296,21 @@ public class VacWorld implements ModelListener {
 		}
 	}
 
+	/**
+	 * tries to read the given config file. The config file must contain a
+	 * configLevel and configRegeneration value.
+	 * 
+	 * @param configFile
+	 * @return {@link VacWorld} object.
+	 */
 	public static VacWorld createFromConfig(String configFile) {
 		Configuration configuration = new Configuration();
-		configuration.requireString(configLevel);
-		configuration.requireBoolean(configRegeneration);
 
 		try {
 			// Read configuration file
-			configuration.loadCloseAndCheck(configFile);
-			String level = configuration.getProperty(configLevel);
-			VacWorld world = null;
-			try {
-				// If level is an integer 1-8, create a random world of that
-				// size
-				int levelSize = Integer.parseInt(level.trim());
-				if (levelSize < 1) {
-					System.out
-							.println("Warning: minimum level size is 1 VacBot!");
-					world = new VacWorld(1);
-				} else if (levelSize > 8) {
-					System.out
-							.println("Warning: maximum level size is 8 VacBots!");
-					world = new VacWorld(8);
-				} else {
-					world = new VacWorld(levelSize);
-				}
-			} catch (NumberFormatException nfe) {
-				// Try to read level as a file -
-				try {
-					world = new VacWorld(new FileInputStream(
-							configuration.findFile(level)));
-					// if this fails, create a default
-					// random level
-				} catch (FileNotFoundException fnfe) {
-					System.out.println("Level file \"" + level
-							+ "\" not found, generating random level.");
-					world = new VacWorld(defaultSize);
-				} catch (IOException ioe) {
-					System.out.println("Error while reading \"" + level
-							+ "\", generating random level.");
-					ioe.printStackTrace();
-					world = new VacWorld(defaultSize);
-				} catch (InvalidVacWorldException ivwe) {
-					System.out.println("Level \"" + level
-							+ "\" is invalid, generating random level.");
-					ivwe.printStackTrace();
-					world = new VacWorld(defaultSize);
-				}
-			}
-			// Apply regenerating dust if configured
-			try {
-				if (configuration.getPropertyAsBoolean(configRegeneration)) {
-					world.setRegeneratingDust();
-				}
-			} catch (PropertyTypeException e) {
-			} // Can't happen
-			return world;
+			configuration.load(configFile);
+			return createVacWorld(configuration);
+
 		} catch (FileNotFoundException fnfe) {
 			System.out.println("Configuration file \"" + configFile
 					+ "\" not found, using defaults.");
@@ -366,5 +325,74 @@ public class VacWorld implements ModelListener {
 		}
 		// Error in config, return a default world
 		return new VacWorld(defaultSize);
+	}
+
+	/**
+	 * create a vacuum world from a configuration.
+	 * 
+	 * @param configuration
+	 * @return
+	 * @throws InvalidConfigurationException
+	 *             If the properties violate the requireXXX expectations.
+	 */
+	public static VacWorld createVacWorld(Configuration configuration) {
+		configuration.requireString(configLevel);
+		configuration.requireBoolean(configRegeneration);
+		try {
+			configuration.check();
+		} catch (InvalidConfigurationException e1) {
+			System.out.println("Invalid configuration " + configuration
+					+ ", using defaults.");
+			e1.printStackTrace();
+			return new VacWorld(defaultSize);
+		}
+
+		VacWorld world = null;
+		String level = configuration.getProperty(configLevel);
+
+		try {
+			// If level is an integer 1-8, create a random world of that
+			// size
+			int levelSize = Integer.parseInt(level.trim());
+			if (levelSize < 1) {
+				System.out.println("Warning: minimum level size is 1 VacBot!");
+				world = new VacWorld(1);
+			} else if (levelSize > 8) {
+				System.out.println("Warning: maximum level size is 8 VacBots!");
+				world = new VacWorld(8);
+			} else {
+				world = new VacWorld(levelSize);
+			}
+		} catch (NumberFormatException nfe) {
+			// Try to read level as a file -
+			try {
+				world = new VacWorld(new FileInputStream(
+						configuration.findFile(level)));
+				// if this fails, create a default
+				// random level
+			} catch (FileNotFoundException fnfe) {
+				System.out.println("Level file \"" + level
+						+ "\" not found, generating random level.");
+				world = new VacWorld(defaultSize);
+			} catch (IOException ioe) {
+				System.out.println("Error while reading \"" + level
+						+ "\", generating random level.");
+				ioe.printStackTrace();
+				world = new VacWorld(defaultSize);
+			} catch (InvalidVacWorldException ivwe) {
+				System.out.println("Level \"" + level
+						+ "\" is invalid, generating random level.");
+				ivwe.printStackTrace();
+				world = new VacWorld(defaultSize);
+			}
+		}
+		// Apply regenerating dust if configured
+		try {
+			if (configuration.getPropertyAsBoolean(configRegeneration)) {
+				world.setRegeneratingDust();
+			}
+		} catch (PropertyTypeException e) {
+		} // Can't happen
+		return world;
 	}
 }
