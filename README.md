@@ -6,7 +6,16 @@ The vacuum environment is a 2-dimensional grid world, populated with fixed obsta
 
 ## World Configuration
 
-In the default configuration, the size of the world is 16 x 8 squares; there are 8 randomly-placed obstacles, 32 random dusty squares, and 4 randomly-placed VacBots. Dust, once cleaned, does not regenerate. This default configuration can be changed by editing the file `conf/ita.conf`, which also includes documentation for each configuration option.
+In the default configuration, the size of the world is 16 x 8 squares; there are 8 randomly-placed obstacles, 32 random dusty squares, and 4 randomly-placed VacBots. Dust, once cleaned, does not regenerate. This default configuration can be changed by editing the file `ita.conf`, which also includes documentation for each configuration option.
+
+You can use the init parameters to set the configuration file. The init parameters are
+
+| parameter name | description |
+|:---------------|:------------|
+| configfile | name of config file (relative path, from directory containing the environment jar file |
+| level | level name. Either relative path, or a string with a number in range [0,8]. |
+| regenerate | "on"/"true",  or "false"/"off". Regenerates dust after it's removed |
+
 
 ## VacBots
 
