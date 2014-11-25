@@ -36,12 +36,17 @@ public class VacWorld implements ModelListener {
 	private static final String configRegeneration = "regeneration";
 
 	private static final int defaultSize = 4;
+	/**
+	 * probability that cell gets new dust added in a second. This
+	 */
+	private double P = 0.01;
 
 	private final String CLEAN_STOP = Clean.class.getName() + "."
 			+ Action.STOP_EVENT;
 	private VacBot[] vacBots = null;
 	public final Grid grid;
-	private Timer timer;
+	private Timer timer; // timer for re-generating dust
+	private Timer generateTimer; // timer for generating new dust.
 	private AppView view;
 
 	/**
@@ -278,12 +283,43 @@ public class VacWorld implements ModelListener {
 	public void close() {
 		if (timer != null)
 			timer.cancel();
+		if (generateTimer != null) {
+			generateTimer.cancel();
+			generateTimer = null;
+		}
 		view.close();
 	}
 
 	public void setRegeneratingDust() {
 		timer = new Timer();
 		grid.addListener(this);
+	}
+
+	public void setGeneratingDust() {
+		generateTimer = new Timer();
+		generateTimer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				generateDust();
+
+			}
+		}, 1000, 1000); // every second.
+	}
+
+	/**
+	 * generate dust. Every cell is checked every second. If the cell is empty,
+	 * we add dust with a probability of P (0=P<=1).
+	 */
+	private void generateDust() {
+		Iterator<Square> gridpoints = grid.squareIterator();
+		while (gridpoints.hasNext()) {
+			Square square = gridpoints.next();
+			if (square.getCount() == 0) {
+				if (Math.random() < P) {
+					new Dust(grid, square.location);
+				}
+			}
+		}
 	}
 
 	public void eventFired(String eventName, ModelObject source) {
@@ -389,7 +425,9 @@ public class VacWorld implements ModelListener {
 		// Apply regenerating dust if configured
 		try {
 			if (configuration.getPropertyAsBoolean(configRegeneration)) {
-				world.setRegeneratingDust();
+				world.setGeneratingDust(); // HACK testing
+
+				// world.setRegeneratingDust();
 			}
 		} catch (PropertyTypeException e) {
 		} // Can't happen

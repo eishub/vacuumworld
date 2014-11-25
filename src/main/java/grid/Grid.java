@@ -18,7 +18,7 @@ public class Grid extends ModelObject implements ModelListener {
 			contents[point.x][point.y] = new Square(point);
 		}
 	}
-	
+
 	private boolean inRangeX(int x) {
 		return !(x < 0 || x >= sizeX);
 	}
@@ -26,10 +26,12 @@ public class Grid extends ModelObject implements ModelListener {
 	private boolean inRangeY(int y) {
 		return !(y < 0 || y >= sizeY);
 	}
-	
+
 	/**
 	 * Check to see if the given square actually exists in this grid.
-	 * @param location coordinates of the square to check
+	 * 
+	 * @param location
+	 *            coordinates of the square to check
 	 * @return true if the square exists, false if not
 	 */
 	public boolean exists(GridPoint location) {
@@ -43,11 +45,22 @@ public class Grid extends ModelObject implements ModelListener {
 
 	public Square getSquareAt(GridPoint location) {
 		// Check the requested square is actually in the grid
-		if (!inRangeX(location.x)) throw new IllegalArgumentException(
-				"x co-ordinate (" + location.x + ") must be in range 0 <= x < " + sizeX);
-		if (!inRangeY(location.y)) throw new IllegalArgumentException(
-				"y co-ordinate (" + location.y + ") must be in range 0 <= y < " + sizeY);
+		if (!inRangeX(location.x))
+			throw new IllegalArgumentException("x co-ordinate (" + location.x
+					+ ") must be in range 0 <= x < " + sizeX);
+		if (!inRangeY(location.y))
+			throw new IllegalArgumentException("y co-ordinate (" + location.y
+					+ ") must be in range 0 <= y < " + sizeY);
 		return contents[location.x][location.y];
+	}
+
+	/**
+	 * get iterator to check all squares in the grid.
+	 * 
+	 * @return
+	 */
+	public Iterator<Square> squareIterator() {
+		return new GridSquareIterator(contents);
 	}
 
 	public Iterator<Square> scanIterator() {
