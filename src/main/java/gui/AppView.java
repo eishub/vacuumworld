@@ -81,7 +81,13 @@ public class AppView implements ModelListener, WorldListener {
 
 	public void close() {
 		world.removeListener(this);
-		frame.dispose();
+		final JFrame theframe = frame;
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				theframe.dispose();
+			}
+		});
 		setVisible(false);
 	}
 
