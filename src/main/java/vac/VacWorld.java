@@ -17,11 +17,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import util.TimerWithPause;
 import util.config.Configuration;
 import util.config.InvalidConfigurationException;
 import actions.Action;
@@ -31,22 +34,41 @@ import actions.Action;
  */
 public class VacWorld implements ModelListener {
 
+	private Set<WorldListener> listeners = new HashSet<WorldListener>();
+
 	private static final String configLevel = "level";
 	private static final String configRegeneration = "generation";
 
 	private static final int defaultSize = 4;
 	/**
-	 * probability that cell gets new dust added in a second. This
+	 * probability that cell gets new dust added in a second. <= 0 means never
+	 * add dust. Handled from the oneSecondTimer.
 	 */
-	private double P = 0.01;
+	private double P = -1;
+
+	/**
+	 * re-generation time of dust in seconds. Anything <0 means do not
+	 * re-generate. handled from ModelListener callback.
+	 */
+	private double R = -1;
 
 	private final String CLEAN_STOP = Clean.class.getName() + "."
 			+ Action.STOP_EVENT;
+
 	private VacBot[] vacBots = null;
 	public final Grid grid;
-	private Timer timer; // timer for re-generating dust
-	private Timer generateTimer; // timer for generating new dust.
+
+	// timer for generating new dust and advancing the clock
+	private TimerWithPause oneSecondTimer = null;
 	private AppView view;
+
+	private Timer regenerateTimer = null; // timer for regeneration of dust.
+
+	private boolean isRunning = false; // runmode. false=paused; true=running.
+
+	private int elapsedSeconds = 0;
+	private int elapsedMinutes = 0;
+	private int elapsedHours = 0;
 
 	/**
 	 * Constructor to create an empty grid of specified size. Size is then fixed
@@ -63,6 +85,72 @@ public class VacWorld implements ModelListener {
 		if (sizeY < 2)
 			throw new IllegalArgumentException("Y-axis size must be >= 2");
 		grid = new Grid(sizeX, sizeY);
+	}
+
+	/**
+	 * Switch the run mode. Also sets up stuff for re-generators if necessary.
+	 * 
+	 * @param run
+	 *            new runmode. true for running, false for paused.
+	 * @return
+	 */
+	public void setRunning(boolean run) {
+		regenerateTimer = new Timer();
+		isRunning = run;
+
+		// Add, but only once. Bit of hack.
+		grid.removeListener(this);
+		grid.addListener(this);
+
+		if (oneSecondTimer == null) {
+			oneSecondTimer = new TimerWithPause() {
+
+				@Override
+				protected void onTick() {
+					nextSecond();
+				}
+
+				@Override
+				protected void onFinish() {
+				}
+			};
+		}
+
+		if (run) {
+			oneSecondTimer.resume();
+		} else {
+			oneSecondTimer.pause();
+		}
+	}
+
+	/**
+	 * Called when one more second passed (only if we are in running mode).
+	 */
+	private void nextSecond() {
+		timerUpdate();
+		generateDust();
+	}
+
+	/**
+	 * Update the elapsed time.
+	 */
+	private void timerUpdate() {
+		++elapsedSeconds;
+		if (elapsedSeconds >= 60) {
+			elapsedSeconds = 0;
+			++elapsedMinutes;
+			if (elapsedMinutes >= 60) {
+				elapsedMinutes = 0;
+				++elapsedHours;
+			}
+		}
+
+		notifyListeners();
+	}
+
+	public String getTimeStatus() {
+		return String.format("Elapsed time: %02d:%02d:%02d", elapsedHours,
+				elapsedMinutes, elapsedSeconds);
 	}
 
 	/**
@@ -276,15 +364,17 @@ public class VacWorld implements ModelListener {
 
 	// TODO: remove this dependency on gui.AppView
 	public void show() {
-		view = new AppView(grid);
+		view = new AppView(grid, this);
 	}
 
 	public void close() {
-		if (timer != null)
-			timer.cancel();
-		if (generateTimer != null) {
-			generateTimer.cancel();
-			generateTimer = null;
+		if (regenerateTimer != null) {
+			regenerateTimer.cancel();
+			regenerateTimer = null;
+		}
+		if (oneSecondTimer != null) {
+			oneSecondTimer.cancel();
+			oneSecondTimer = null;
 		}
 		view.close();
 	}
@@ -294,37 +384,34 @@ public class VacWorld implements ModelListener {
 	 * between 0 and time seconds.
 	 * 
 	 * @param time
-	 *            speed of re-appearance of dust.
+	 *            speed of re-appearance of dust. <0 disables regeneration.
 	 */
 	public void setRegeneratingDust(float time) {
-		timer = new Timer();
-		grid.addListener(this);
+		R = time;
 	}
 
 	/**
-	 * starts the dust generator. Every square has a probabily P of getting new
-	 * dust every second.
+	 * set the dust generator. This creates dust in all cells with given
+	 * probability
 	 * 
-	 * @param newP
-	 *            the probability of dust appearing in a second.
+	 * @param probability
+	 *            probability (as percentage, in range 0-100) that cell gets
+	 *            dust every second. If probability is set <0 this disables dust
+	 *            generator.
 	 */
-	public void setGeneratingDust(float newP) {
-		P = newP;
-		generateTimer = new Timer();
-		generateTimer.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				generateDust();
-
-			}
-		}, 1000, 1000); // every second.
+	public void setGeneratingDust(float probability) {
+		P = probability;
 	}
 
 	/**
-	 * generate dust. Every cell is checked every second. If the cell is empty,
-	 * we add dust with a probability of P (0=P<=1).
+	 * generate dust. This is called every second if we are running. Every cell
+	 * is checked. If the cell is empty, we add dust with a probability of P
+	 * (0<P<=1). If P<=0, this just returns.
 	 */
 	private void generateDust() {
+		if (P <= 0) {
+			return; // shortcut if turned off.
+		}
 		Iterator<Square> gridpoints = grid.squareIterator();
 		while (gridpoints.hasNext()) {
 			Square square = gridpoints.next();
@@ -336,14 +423,31 @@ public class VacWorld implements ModelListener {
 		}
 	}
 
+	/**
+	 * called when there's an event in the vacuum world. Used to handle
+	 * regeneration of cleaned dust.
+	 */
 	public void eventFired(String eventName, ModelObject source) {
-		if (eventName.equals(CLEAN_STOP)) {
-			timer.schedule(new TimerTask() {
-				public void run() {
-					addRandomDust(1);
-				}
-			}, Math.round(Math.random() * 20000));
+		if (eventName.equals(CLEAN_STOP) && R >= 0) {
+			scheduleRegenerateDust();
 		}
+	}
+
+	/**
+	 * Schedules adding of 1 new dust. If the environment happens to be paused
+	 * when the timer goes off, we just restart the timer.
+	 */
+	private void scheduleRegenerateDust() {
+		regenerateTimer.schedule(new TimerTask() {
+			public void run() {
+				if (isRunning) {
+					addRandomDust(1);
+				} else {
+					scheduleRegenerateDust();
+				}
+			}
+		}, Math.round(Math.random() * R * 1000.0));
+
 	}
 
 	/**
@@ -453,4 +557,27 @@ public class VacWorld implements ModelListener {
 
 		return world;
 	}
+
+	public void addListener(WorldListener listener) {
+		synchronized (listeners) {
+			listeners.add(listener);
+		}
+	}
+
+	public void removeListener(WorldListener listener) {
+		synchronized (listeners) {
+			listeners.remove(listener);
+		}
+	}
+
+	private void notifyListeners() {
+		for (WorldListener listener : listeners) {
+			try {
+				listener.timeChanged(getTimeStatus());
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 }

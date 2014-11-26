@@ -16,7 +16,6 @@ import eis.iilang.Parameter;
 public class Ei extends AbstractEISInterface {
 
 	private static final long serialVersionUID = 6104242799596441135L;
-	private static final String configFile = "ita.conf";
 	VacWorld world;
 	final Map<String, VacBot> vacBots = new HashMap<String, VacBot>();
 
@@ -57,9 +56,21 @@ public class Ei extends AbstractEISInterface {
 	}
 
 	@Override
+	public void pause() throws ManagementException {
+		world.setRunning(false);
+		super.pause();
+	}
+
+	@Override
+	public void start() throws ManagementException {
+		world.setRunning(true);
+		super.start();
+	}
+
+	@Override
 	public void reset(Map<String, Parameter> parameters)
 			throws ManagementException {
-
+		closeWorld();
 		if (parameters.containsKey(configKeys.configfile.toString())) {
 			Parameter fileparam = parameters.get(configKeys.configfile
 					.toString());
@@ -71,8 +82,27 @@ public class Ei extends AbstractEISInterface {
 
 		world.show();
 
+		world.setRunning(false);
 		this.setState(EnvironmentState.PAUSED);
 	}
+
+	/**
+	 * Close old world if it's still open.
+	 */
+	private void closeWorld() {
+		if (world != null) {
+			world.close();
+			world = null;
+		}
+	}
+
+	@Override
+	public void kill() throws ManagementException {
+		closeWorld();
+		setState(EnvironmentState.KILLED);
+	}
+
+	// TODO: support percepts as notifications
 
 	/**
 	 * creates a {@link Configuration} from the EIS parameters..
@@ -93,17 +123,5 @@ public class Ei extends AbstractEISInterface {
 		}
 		return config;
 	}
-
-	@Override
-	public void kill() throws ManagementException {
-		if (world != null) {
-			world.close();
-			world = null;
-		}
-
-		setState(EnvironmentState.KILLED);
-	}
-
-	// TODO: support percepts as notifications
 
 }

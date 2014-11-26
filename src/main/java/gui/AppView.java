@@ -6,29 +6,31 @@ import grid.ModelObject;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 
 import vac.Clean;
+import vac.VacWorld;
+import vac.WorldListener;
 import actions.Action;
 
 /**
  * Top level GUI object. Constructor creates and shows the entire GUI.
  */
-public class AppView implements ModelListener {
+public class AppView implements ModelListener, WorldListener {
 
 	private final String CLEAN_STOP = Clean.class.getName() + "."
 			+ Action.STOP_EVENT;
+	private final String TIME_CHANGED = VacWorld.class.getName() + "."
+			+ Action.TIME_EVENT;
+
 	private final JLabel dustCleanedLabel;
 	private final JLabel elapsedTimeLabel;
 	private final JFrame frame;
-	private final Timer timer;
+	private VacWorld world; // for (un)subscribing
 
 	/**
 	 * Creates AppView but does not yet set it visible as that can be done only
@@ -36,16 +38,11 @@ public class AppView implements ModelListener {
 	 * 
 	 * @param grid
 	 */
-	public AppView(Grid grid) {
+	public AppView(Grid grid, VacWorld world) {
+		this.world = world;
 		// Register for updates on every GridObject
 		grid.addListener(this);
-
-		// Create a one-second repeat timer
-		timer = new Timer(1000, new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				timerUpdate();
-			}
-		});
+		world.addListener(this);
 
 		frame = new JFrame("Vacuum World");
 		GridView gridView = new GridView(grid);
@@ -58,7 +55,7 @@ public class AppView implements ModelListener {
 		dustCleanedLabel = new JLabel(getDustStatus());
 		infoPanel.add(dustCleanedLabel);
 		infoPanel.add(new JLabel("      "));
-		elapsedTimeLabel = new JLabel(getTimeStatus());
+		elapsedTimeLabel = new JLabel("-");
 		infoPanel.add(elapsedTimeLabel);
 		frame.add(infoPanel, BorderLayout.SOUTH);
 
@@ -67,7 +64,6 @@ public class AppView implements ModelListener {
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		// Finally, show it, and start the timer
 		setVisible(true);
-		timer.start();
 	}
 
 	private int dustCleaned = 0;
@@ -83,30 +79,8 @@ public class AppView implements ModelListener {
 		}
 	}
 
-	private int elapsedSeconds = 0;
-	private int elapsedMinutes = 0;
-	private int elapsedHours = 0;
-
-	private String getTimeStatus() {
-		return String.format("Elapsed time: %02d:%02d:%02d", elapsedHours,
-				elapsedMinutes, elapsedSeconds);
-	}
-
-	public void timerUpdate() {
-		++elapsedSeconds;
-		if (elapsedSeconds >= 60) {
-			elapsedSeconds = 0;
-			++elapsedMinutes;
-			if (elapsedMinutes >= 60) {
-				elapsedMinutes = 0;
-				++elapsedHours;
-			}
-		}
-		elapsedTimeLabel.setText(getTimeStatus());
-	}
-
 	public void close() {
-		timer.stop();
+		world.removeListener(this);
 		frame.dispose();
 		setVisible(false);
 	}
@@ -117,6 +91,11 @@ public class AppView implements ModelListener {
 				frame.setVisible(isVisible);
 			}
 		});
+	}
+
+	@Override
+	public void timeChanged(String time) {
+		elapsedTimeLabel.setText(time);
 	}
 
 }
