@@ -8,8 +8,8 @@
 		<environmentname>vacuumworld</environmentname>
 		<mainclass>ei.Ei</mainclass>
 	</properties>
-	
-	
+
+
 	<groupId>eishub</groupId>
 	<artifactId>${environmentname}</artifactId>
 	<version>0.2.0-SNAPSHOT</version>
@@ -19,8 +19,8 @@
 A gridworld where dust needs to be removed by a set of bots.</description>
 	<url>http://www.github.com/eishub/${environmentname}</url>
 
-	
-	
+
+
 	<licenses>
 		<license>
 			<name>The GNU General Public License, Version 3.0</name>
@@ -67,6 +67,12 @@ A gridworld where dust needs to be removed by a set of bots.</description>
 			<groupId>eishub</groupId>
 			<artifactId>eis</artifactId>
 			<version>0.5.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
 		</dependency>
 	</dependencies>
 

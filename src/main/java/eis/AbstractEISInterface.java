@@ -70,11 +70,6 @@ public class AbstractEISInterface extends EIDefaultImpl {
 		return entity.perceive();
 	}
 
-	@Override
-	public String requiredVersion() {
-		return "0.4";
-	}
-
 	private IEISAction getAction(Action action) {
 		List<IEISAction> list = actions.get(action.getName());
 		if (list == null)
