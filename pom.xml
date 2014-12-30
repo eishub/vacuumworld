@@ -66,7 +66,7 @@ A gridworld where dust needs to be removed by a set of bots.</description>
 		<dependency>
 			<groupId>eishub</groupId>
 			<artifactId>eis</artifactId>
-			<version>0.5.0</version>
+			<version>0.5.1-SNAPSHOT</version>
 		</dependency>
 
 	</dependencies>
