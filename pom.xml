@@ -12,7 +12,7 @@
 
 	<groupId>eishub</groupId>
 	<artifactId>${environmentname}</artifactId>
-	<version>0.2.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>${environmentname}</name>
 	<description>${environmentname} 
 
@@ -66,7 +66,7 @@ A gridworld where dust needs to be removed by a set of bots.</description>
 		<dependency>
 			<groupId>eishub</groupId>
 			<artifactId>eis</artifactId>
-			<version>0.5.0-SNAPSHOT</version>
+			<version>0.5.0</version>
 		</dependency>
 
 	</dependencies>
@@ -179,8 +179,7 @@ A gridworld where dust needs to be removed by a set of bots.</description>
 				<configuration>
 					<server>github</server>
 					<!-- git commit message -->
-					<message>Maven artifacts for ${project.name} version
-						${project.version}</message>
+					<message>Maven artifacts for ${project.name} version ${project.version}</message>
 					<!-- matches distribution management repository url above -->
 					<outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>
 					<!-- remote branch name -->
