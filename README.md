@@ -53,3 +53,20 @@ All of these percepts except for the **task** percept are only available when th
 ## Acknowledgement
 This environment was developed and provided by [Rem Collier](https://www.csi.ucd.ie/users/rem-collier) and [Howell Jordan](https://www.csi.ucd.ie/users/howell-jordan) from [UCD School of Computer Science and Informatics](https://www.csi.ucd.ie/).
 
+Dependency information 
+=====================
+
+```
+<repository>
+ <id>eishub-mvn-repo</id>
+ <url>https://raw.github.com/eishub/mvn-repo/master</url>
+</repository>
+```
+	
+```	
+<dependency>
+	<groupId>eishub</groupId>
+	<artifactId>vacuumworld</artifactId>
+	<version>1.0.1-SNAPSHOT</version>
+</dependency>
+```
