@@ -46,8 +46,9 @@ All of these percepts except for the **task** percept are only available when th
 
 ## EIS Interface Details
 
-* The **move** actions will throw an ActException of type FAILURE if it is invoked while the VacBot is moving or cleaning. If the moving VacBot meets another VacBot, a permanent obstacle, or the edge of the grid, it halts and throws an ActException of type FAILURE. The exception message indicates whether the failure was temporary (caused by another VacBot) or permanent (caused by a fixed obstacle or the edge of the grid).
-* The **clean** action will throw an ActException of type FAILURE if it is invoked while the VacBot is moving or cleaning.
+* The **move** actions will return a busy percept if it is invoked while the VacBot is moving or cleaning. If the moving VacBot meets another VacBot, a permanent obstacle, or the edge of the grid, it halts and returns a busy percept. The percept parameter indicates whether the failure was temporary (caused by another VacBot) or permanent (caused by a fixed obstacle or the edge of the grid).
+* The **clean** action will return a busy percept if it is invoked while the VacBot is moving or cleaning.
+It will return a bump percept if there is nothing to clean at that spot.
 * No environment management commands are supported. The environment runs until it is terminated by the user or by the operating system.
 
 ## Acknowledgement
