@@ -11,7 +11,7 @@
 
 
 	<groupId>eishub</groupId>
-	<artifactId>${environmentname}</artifactId>
+	<artifactId>vacuumworld</artifactId>
 	<version>1.0.1-SNAPSHOT</version>
 	<name>${environmentname}</name>
 	<description>${environmentname} 
