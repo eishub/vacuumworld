@@ -57,7 +57,7 @@ public class Grid extends ModelObject implements ModelListener {
 	/**
 	 * get iterator to check all squares in the grid.
 	 * 
-	 * @return
+	 * @return iterator of all squares
 	 */
 	public Iterator<Square> squareIterator() {
 		return new GridSquareIterator(contents);

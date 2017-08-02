@@ -48,8 +48,6 @@ public class Move extends Action {
 
 	/**
 	 * Check the destination square exists, and try to get exclusive occupancy.
-	 * @throws ImpossibleActionException 
-	 * @throws UnavailableActionException 
 	 */
 	protected void initialise() throws ImpossibleActionException, UnavailableActionException {
 		startPoint = movingObject.getLocation();

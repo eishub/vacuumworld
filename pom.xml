@@ -125,6 +125,10 @@ A gridworld where dust needs to be removed by a set of bots.</description>
 						<goals>
 							<goal>jar</goal>
 						</goals>
+						<configuration>
+						<!-- DO NOT FAIL ON INCOMPLETE JAVADOC -->
+						<additionalparam>-Xdoclint:none</additionalparam>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>

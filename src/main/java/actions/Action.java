@@ -80,9 +80,6 @@ public abstract class Action {
 	 * start event is fired. Can be empty if no special setup is needed. If the
 	 * action is impossible or unavailable, implementations MUST clean up before
 	 * throwing an exception.
-	 * 
-	 * @throws ImpossibleActionException
-	 * @throws UnavailableActionException
 	 */
 	protected abstract void initialise() throws ImpossibleActionException,
 			UnavailableActionException;
