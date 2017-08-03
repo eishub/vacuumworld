@@ -71,3 +71,6 @@ Dependency information
 	<version>1.0.1-SNAPSHOT</version>
 </dependency>
 ```
+=======
+[Documentation](https://goalapl.atlassian.net/wiki/display/ENV/Vacuum+World) for
+the Vacuum World.
