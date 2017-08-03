@@ -11,10 +11,10 @@
 
 
 	<groupId>eishub</groupId>
-	<artifactId>${environmentname}</artifactId>
+	<artifactId>vacuumworld</artifactId>
 	<version>1.0.0</version>
-	<name>${environmentname}</name>
-	<description>${environmentname} 
+	<name>vacuumworld</name>
+	<description>vacuumworld 
 
 A gridworld where dust needs to be removed by a set of bots.</description>
 	<url>http://www.github.com/eishub/${environmentname}</url>
