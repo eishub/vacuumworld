@@ -82,8 +82,8 @@ public class VacWorld implements ModelListener {
 	VacWorld(int sizeX, int sizeY) {
 		if (sizeX < 2)
 			throw new IllegalArgumentException("X-axis size must be >= 2");
-		if (sizeY < 2)
-			throw new IllegalArgumentException("Y-axis size must be >= 2");
+		if (sizeY < 1)
+			throw new IllegalArgumentException("Y-axis size must be >= 1");
 		grid = new Grid(sizeX, sizeY);
 	}
 
@@ -203,11 +203,11 @@ public class VacWorld implements ModelListener {
 		}
 		reader.close();
 
-		// Check grid is a rectangle of at least 2 x 2
+		// Check grid is a rectangle of at least 2 x 1
 		int sizeY = lines.size();
-		if (sizeY < 2)
+		if (sizeY < 1)
 			throw new InvalidVacWorldException(
-					"Minimum y-dimension of grid is 2.");
+					"Minimum y-dimension of grid is 1.");
 		int sizeX = -1;
 		for (String configLine : lines) {
 			if (sizeX < 0) {

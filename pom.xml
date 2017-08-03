@@ -155,6 +155,11 @@ A gridworld where dust needs to be removed by a set of bots.</description>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
+					<archive>
+						<manifest>
+							<mainClass>${mainclass}</mainClass>
+						</manifest>
+					</archive>
 				</configuration>
 				<executions>
 					<execution>
