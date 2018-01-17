@@ -6,6 +6,7 @@ import actions.UnavailableActionException;
 import eis.AbstractEISEntityAction;
 import eis.exceptions.ActException;
 import eis.iilang.Action;
+import eis.iilang.Identifier;
 import eis.iilang.Percept;
 import grid.Direction;
 import grid.RelativeDirection;
@@ -68,16 +69,17 @@ public class EisMove extends AbstractEISEntityAction {
 		try {
 			vacBot.move(steps, directionToMove);
 		} catch (InterruptedException e) {
-			throw new ActException(ActException.FAILURE,
-					"Move was interrupted!");
+			return new Percept("bump", new Identifier("Move was interrupted!"));
 		} catch (ImpossibleActionException e) {
-			throw new ActException(ActException.FAILURE,
-					"Move into permanent obstacle not possible.");
+			return new Percept("bump", new Identifier(
+					"Move into permanent obstacle not possible."));
 		} catch (UnavailableActionException e) {
-			throw new ActException(ActException.FAILURE,
-					"Move into moveable object not possible - seems another VacBot in the way");
+			return new Percept(
+					"bump",
+					new Identifier(
+							"Move into moveable object not possible - seems another VacBot in the way"));
 		}
-		return new Percept("success");
+		return new Percept("success"); // FIXME this is not documented
 	}
 
 }

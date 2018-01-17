@@ -12,7 +12,7 @@
 
 	<groupId>eishub</groupId>
 	<artifactId>vacuumworld</artifactId>
-	<version>1.0.0</version>
+	<version>1.2.0</version>
 	<name>vacuumworld</name>
 	<description>vacuumworld 
 
@@ -66,7 +66,7 @@ A gridworld where dust needs to be removed by a set of bots.</description>
 		<dependency>
 			<groupId>eishub</groupId>
 			<artifactId>eis</artifactId>
-			<version>0.5.0</version>
+			<version>0.6.0</version>
 		</dependency>
 
 	</dependencies>
@@ -95,7 +95,7 @@ A gridworld where dust needs to be removed by a set of bots.</description>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.4</version>
+				<version>3.0.2</version>
 				<configuration>
 					<archive>
 						<manifest>
@@ -118,13 +118,17 @@ A gridworld where dust needs to be removed by a set of bots.</description>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.10.1</version>
+				<version>3.0.0-M1</version>
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
 						<goals>
 							<goal>jar</goal>
 						</goals>
+						<configuration>
+							<!-- DO NOT FAIL ON INCOMPLETE JAVADOC -->
+							<additionalparam>-Xdoclint:none</additionalparam>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -151,6 +155,11 @@ A gridworld where dust needs to be removed by a set of bots.</description>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
+					<archive>
+						<manifest>
+							<mainClass>${mainclass}</mainClass>
+						</manifest>
+					</archive>
 				</configuration>
 				<executions>
 					<execution>
@@ -179,7 +188,8 @@ A gridworld where dust needs to be removed by a set of bots.</description>
 				<configuration>
 					<server>github</server>
 					<!-- git commit message -->
-					<message>Maven artifacts for ${project.name} version ${project.version}</message>
+					<message>Maven artifacts for ${project.name} version
+						${project.version}</message>
 					<!-- matches distribution management repository url above -->
 					<outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>
 					<!-- remote branch name -->
