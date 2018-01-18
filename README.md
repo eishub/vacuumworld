@@ -68,9 +68,9 @@ Dependency information
 <dependency>
 	<groupId>eishub</groupId>
 	<artifactId>vacuumworld</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>1.1.0</version>
 </dependency>
 ```
-=======
+
 [Documentation](https://goalapl.atlassian.net/wiki/display/ENV/Vacuum+World) for
 the Vacuum World.
