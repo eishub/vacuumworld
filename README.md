@@ -25,7 +25,7 @@ The file contains the contents of the map grid, one character per grid point, on
 | whitespace | empty square (can be filled with dust randomly |
 | .| dust |
 | X | wall |
-| n,e, s, w, N,E,S,W | initial orientations for bots at this place |
+| n,e, s, w, N,E,S,W | initial orientations for bots at this place. you can have at most 8 of these in the map. |
 | # as first char | comment line |
 
 
