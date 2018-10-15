@@ -28,6 +28,9 @@ The file contains the contents of the map grid, one character per grid point, on
 | n,e, s, w, N,E,S,W | initial orientations for bots at this place. you can have at most 8 of these in the map. |
 | # as first char | comment line |
 
+### Config File
+A config file is basically a Properties file, containing two lines (no commas). One line must be "level = ...", the other "generate = ..." (without the double quotes), just like you would in the MAS file.
+
 
 ## VacBots
 
