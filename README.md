@@ -16,6 +16,16 @@ You can use the init parameters to set the configuration file. The init paramete
 | level | level name. Either relative path, or a string with a number in range [0,8]. |
 | generate | A string indicating the required regeneration pattern. Can have the values "no",  "X s" (Regenerates dust X seconds after it's removed) or "P %" (generates dust on every square with a probability of P % per second)  |
 
+### Level file
+Level files are files with a ".vwl" extension. They are usually in the same directory as the vacuumworld jar file.
+The file contains the contents of the map grid, one character per grid point, one row per map row. All rows should be equally long. The lowest grid line in the map is the first row in the file. The characters are as follows:
+| character | map element |
+| whitespace | empty square (can be filled with dust randomly |
+| .| dust |
+| X | wall |
+| n,e, s, w, N,E,S,W | initial orientations for bots at this place |
+| # as first char | comment line |
+
 
 ## VacBots
 
