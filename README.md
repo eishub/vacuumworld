@@ -29,7 +29,7 @@ The file contains the contents of the map grid, one character per grid point, on
 | # as first char | comment line |
 
 ### Config File
-A config file is basically a Properties file, containing two lines (no commas). One line must be "level = ...", the other "generate = ..." (without the double quotes), just like you would in the MAS file.
+A config file is basically a Properties file, containing two lines (no commas). One line must be "level = ...", the other "generate = ..." (without the double quotes), just like you would in the MAS file but *without the double quotes*.
 
 
 ## VacBots
