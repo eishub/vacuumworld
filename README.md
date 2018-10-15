@@ -19,7 +19,9 @@ You can use the init parameters to set the configuration file. The init paramete
 ### Level file
 Level files are files with a ".vwl" extension. They are usually in the same directory as the vacuumworld jar file.
 The file contains the contents of the map grid, one character per grid point, one row per map row. All rows should be equally long. The lowest grid line in the map is the first row in the file. The characters are as follows:
+
 | character | map element |
+|:----------------|:---------------|
 | whitespace | empty square (can be filled with dust randomly |
 | .| dust |
 | X | wall |
