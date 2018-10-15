@@ -14,8 +14,7 @@ You can use the init parameters to set the configuration file. The init paramete
 |:---------------|:------------|
 | configfile | name of config file (relative path, from directory containing the environment jar file |
 | level | level name. Either relative path, or a string with a number in range [0,8]. |
-| generate | "no",  "X s" (Regenerates dust X seconds after it's removed) or "P %"
-(generates dust on every square with a probability of P % per second)  |
+| generate | A string indicating the required regeneration pattern. Can have the values "no",  "X s" (Regenerates dust X seconds after it's removed) or "P %" (generates dust on every square with a probability of P % per second)  |
 
 
 ## VacBots
