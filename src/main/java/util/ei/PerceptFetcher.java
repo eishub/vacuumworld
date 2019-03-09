@@ -2,6 +2,7 @@ package util.ei;
 
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import eis.EnvironmentInterfaceStandard;
@@ -15,22 +16,22 @@ import eis.iilang.Percept;
  * snapshot of the environment percepts which can be queried later.
  */
 public class PerceptFetcher implements Runnable {
-
-	private LinkedList<Percept> storedPercepts = new LinkedList<Percept>();
+	private List<Percept> storedPercepts = new LinkedList<>();
 	private final EnvironmentInterfaceStandard ei;
 	private String testAgent;
 	private long sleepTime = 100;
 
 	public PerceptFetcher(EnvironmentInterfaceStandard eis) {
-		if (eis == null)
-			throw new IllegalArgumentException(
-					"Environment interface cannot be null!");
+		if (eis == null) {
+			throw new IllegalArgumentException("Environment interface cannot be null!");
+		}
 		this.ei = eis;
 	}
 
 	public void setTestAgent(String testAgent) {
-		if (testAgent == null)
+		if (testAgent == null) {
 			throw new IllegalArgumentException("Test agent cannot be null!");
+		}
 		this.testAgent = testAgent;
 	}
 
@@ -38,56 +39,54 @@ public class PerceptFetcher implements Runnable {
 		this.sleepTime = sleepTime;
 	}
 
+	@Override
 	public void run() {
 		try {
-			Thread.sleep(sleepTime);
-			storedPercepts = getFreshPercepts();
-		} catch (InterruptedException | PerceiveException
-				| NoEnvironmentException e) {
+			Thread.sleep(this.sleepTime);
+			this.storedPercepts = getFreshPercepts();
+		} catch (InterruptedException | PerceiveException | NoEnvironmentException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private Percept getPerceptFrom(String perceptName,
-			LinkedList<Percept> percepts) {
+	private Percept getPerceptFrom(String perceptName, List<Percept> percepts) {
 		for (Percept percept : percepts) {
-			if (percept.getName().equals(perceptName))
+			if (percept.getName().equals(perceptName)) {
 				return percept;
+			}
 		}
 		return null;
 	}
 
 	public String getFirstParameterFrom(Percept percept) {
-		return percept.getParameters().getFirst().toProlog();
+		return percept.getParameters().get(0).toProlog();
 	}
 
 	public String getSecondParameterFrom(Percept percept) {
 		return percept.getParameters().get(1).toProlog();
 	}
 
-	private String getSingleParamPerceptFrom(String perceptName,
-			LinkedList<Percept> percepts) {
+	private String getSingleParamPerceptFrom(String perceptName, List<Percept> percepts) {
 		return getFirstParameterFrom(getPerceptFrom(perceptName, percepts));
 	}
 
-	private LinkedList<Percept> getPerceptsFrom(String perceptName,
-			LinkedList<Percept> percepts) {
-		LinkedList<Percept> results = new LinkedList<Percept>();
+	private List<Percept> getPerceptsFrom(String perceptName, List<Percept> percepts) {
+		List<Percept> results = new LinkedList<>();
 		for (Percept percept : percepts) {
-			if (percept.getName().equals(perceptName))
+			if (percept.getName().equals(perceptName)) {
 				results.add(percept);
+			}
 		}
 		return results;
 	}
 
-	public LinkedList<Percept> getStoredPercepts() {
-		return storedPercepts;
+	public List<Percept> getStoredPercepts() {
+		return this.storedPercepts;
 	}
 
-	public LinkedList<Percept> getFreshPercepts() throws PerceiveException,
-			NoEnvironmentException {
-		LinkedList<Percept> result = new LinkedList<Percept>();
-		Map<String, Collection<Percept>> map = ei.getAllPercepts(testAgent);
+	public List<Percept> getFreshPercepts() throws PerceiveException, NoEnvironmentException {
+		List<Percept> result = new LinkedList<>();
+		Map<String, Collection<Percept>> map = this.ei.getAllPercepts(this.testAgent);
 		// Apparently, the keys for this map are the entities associated with
 		// testAgent
 		for (String key : map.keySet()) {
@@ -100,30 +99,26 @@ public class PerceptFetcher implements Runnable {
 	}
 
 	public Percept getStoredPercept(String perceptName) {
-		return getPerceptFrom(perceptName, storedPercepts);
+		return getPerceptFrom(perceptName, this.storedPercepts);
 	}
 
-	public Percept getFreshPercept(String perceptName)
-			throws PerceiveException, NoEnvironmentException {
-		return getPerceptFrom(perceptName, this.getFreshPercepts());
+	public Percept getFreshPercept(String perceptName) throws PerceiveException, NoEnvironmentException {
+		return getPerceptFrom(perceptName, getFreshPercepts());
 	}
 
-	public LinkedList<Percept> getStoredPercepts(String perceptName) {
-		return getPerceptsFrom(perceptName, storedPercepts);
+	public List<Percept> getStoredPercepts(String perceptName) {
+		return getPerceptsFrom(perceptName, this.storedPercepts);
 	}
 
-	public LinkedList<Percept> getFreshPercepts(String perceptName)
-			throws PerceiveException, NoEnvironmentException {
-		return getPerceptsFrom(perceptName, this.getFreshPercepts());
+	public List<Percept> getFreshPercepts(String perceptName) throws PerceiveException, NoEnvironmentException {
+		return getPerceptsFrom(perceptName, getFreshPercepts());
 	}
 
 	public String getStoredSingleParamPercept(String perceptName) {
-		return getSingleParamPerceptFrom(perceptName, storedPercepts);
+		return getSingleParamPerceptFrom(perceptName, this.storedPercepts);
 	}
 
-	public String getFreshSingleParamPercept(String perceptName)
-			throws PerceiveException, NoEnvironmentException {
-		return getSingleParamPerceptFrom(perceptName, this.getFreshPercepts());
+	public String getFreshSingleParamPercept(String perceptName) throws PerceiveException, NoEnvironmentException {
+		return getSingleParamPerceptFrom(perceptName, getFreshPercepts());
 	}
-
 }

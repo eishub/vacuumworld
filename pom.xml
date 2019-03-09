@@ -2,24 +2,20 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<environmentname>vacuumworld</environmentname>
 		<mainclass>ei.Ei</mainclass>
 	</properties>
 
-
 	<groupId>eishub</groupId>
 	<artifactId>vacuumworld</artifactId>
-	<version>1.2.0</version>
+	<version>1.2.1-SNAPSHOT</version>
 	<name>vacuumworld</name>
 	<description>vacuumworld 
 
 A gridworld where dust needs to be removed by a set of bots.</description>
 	<url>http://www.github.com/eishub/${environmentname}</url>
-
-
 
 	<licenses>
 		<license>
@@ -53,8 +49,6 @@ A gridworld where dust needs to be removed by a set of bots.</description>
 		<url>https://github.com:eishub/${environmentname}</url>
 	</scm>
 
-
-
 	<repositories>
 		<repository>
 			<id>eishub-mvn-repo</id>
@@ -66,9 +60,8 @@ A gridworld where dust needs to be removed by a set of bots.</description>
 		<dependency>
 			<groupId>eishub</groupId>
 			<artifactId>eis</artifactId>
-			<version>0.6.0</version>
+			<version>0.6.2</version>
 		</dependency>
-
 	</dependencies>
 
 	<build>
@@ -76,7 +69,7 @@ A gridworld where dust needs to be removed by a set of bots.</description>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
-				<version>2.9</version>
+				<version>3.1.1</version>
 				<executions>
 					<execution>
 						<id>analyze</id>
@@ -95,7 +88,7 @@ A gridworld where dust needs to be removed by a set of bots.</description>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.0.2</version>
+				<version>3.1.1</version>
 				<configuration>
 					<archive>
 						<manifest>
@@ -108,27 +101,23 @@ A gridworld where dust needs to be removed by a set of bots.</description>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.6.1</version>
+				<version>3.8.0</version>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.0.0-M1</version>
+				<version>2.10.4</version>
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
 						<goals>
 							<goal>jar</goal>
 						</goals>
-						<configuration>
-							<!-- DO NOT FAIL ON INCOMPLETE JAVADOC -->
-							<additionalparam>-Xdoclint:none</additionalparam>
-						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -136,7 +125,7 @@ A gridworld where dust needs to be removed by a set of bots.</description>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>2.4</version>
+				<version>3.0.1</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -150,7 +139,7 @@ A gridworld where dust needs to be removed by a set of bots.</description>
 
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.5.2</version>
+				<version>3.1.1</version>
 				<configuration>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
@@ -166,7 +155,7 @@ A gridworld where dust needs to be removed by a set of bots.</description>
 						<id>make-assembly</id>
 						<phase>package</phase>
 						<goals>
-							<goal>attached</goal>
+							<goal>single</goal>
 						</goals>
 					</execution>
 				</executions>
@@ -184,7 +173,7 @@ A gridworld where dust needs to be removed by a set of bots.</description>
 			<plugin>
 				<groupId>com.github.github</groupId>
 				<artifactId>site-maven-plugin</artifactId>
-				<version>0.10</version>
+				<version>0.12</version>
 				<configuration>
 					<server>github</server>
 					<!-- git commit message -->
@@ -216,4 +205,15 @@ A gridworld where dust needs to be removed by a set of bots.</description>
 		</plugins>
 	</build>
 
+	<profiles>
+		<profile>
+			<id>disable-java8-doclint</id>
+			<activation>
+				<jdk>[1.8,)</jdk>
+			</activation>
+			<properties>
+				<additionalparam>-Xdoclint:none</additionalparam>
+			</properties>
+		</profile>
+	</profiles>
 </project>

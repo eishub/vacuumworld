@@ -1,9 +1,5 @@
 package gui;
 
-import grid.Grid;
-import grid.ModelListener;
-import grid.ModelObject;
-
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 
@@ -12,30 +8,28 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import actions.Action;
+import grid.Grid;
+import grid.ModelListener;
+import grid.ModelObject;
 import vac.Clean;
 import vac.VacWorld;
 import vac.WorldListener;
-import actions.Action;
 
 /**
  * Top level GUI object. Constructor creates and shows the entire GUI.
  */
 public class AppView implements ModelListener, WorldListener {
-
-	private final String CLEAN_STOP = Clean.class.getName() + "."
-			+ Action.STOP_EVENT;
-	private final String TIME_CHANGED = VacWorld.class.getName() + "."
-			+ Action.TIME_EVENT;
-
+	private final String CLEAN_STOP = Clean.class.getName() + "." + Action.STOP_EVENT;
 	private final JLabel dustCleanedLabel;
 	private final JLabel elapsedTimeLabel;
 	private final JFrame frame;
 	private VacWorld world; // for (un)subscribing
 
 	/**
-	 * Creates AppView but does not yet set it visible as that can be done only
-	 * from the AWT thread.
-	 * 
+	 * Creates AppView but does not yet set it visible as that can be done only from
+	 * the AWT thread.
+	 *
 	 * @param grid
 	 */
 	public AppView(Grid grid, VacWorld world) {
@@ -44,24 +38,24 @@ public class AppView implements ModelListener, WorldListener {
 		grid.addListener(this);
 		world.addListener(this);
 
-		frame = new JFrame("Vacuum World");
+		this.frame = new JFrame("Vacuum World");
 		GridView gridView = new GridView(grid);
 		grid.addListener(gridView);
-		frame.add(gridView);
+		this.frame.add(gridView);
 
 		// Create a lower panel to show the current status
 		JPanel infoPanel = new JPanel();
 		infoPanel.setLayout(new FlowLayout());
-		dustCleanedLabel = new JLabel(getDustStatus());
-		infoPanel.add(dustCleanedLabel);
+		this.dustCleanedLabel = new JLabel(getDustStatus());
+		infoPanel.add(this.dustCleanedLabel);
 		infoPanel.add(new JLabel("      "));
-		elapsedTimeLabel = new JLabel("-");
-		infoPanel.add(elapsedTimeLabel);
-		frame.add(infoPanel, BorderLayout.SOUTH);
+		this.elapsedTimeLabel = new JLabel("-");
+		infoPanel.add(this.elapsedTimeLabel);
+		this.frame.add(infoPanel, BorderLayout.SOUTH);
 
-		frame.pack();
-		frame.setLocationRelativeTo(null);
-		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		this.frame.pack();
+		this.frame.setLocationRelativeTo(null);
+		this.frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		// Finally, show it, and start the timer
 		setVisible(true);
 	}
@@ -69,19 +63,20 @@ public class AppView implements ModelListener, WorldListener {
 	private int dustCleaned = 0;
 
 	private String getDustStatus() {
-		return String.format("Dust cleaned: %02d", dustCleaned);
+		return String.format("Dust cleaned: %02d", this.dustCleaned);
 	}
 
+	@Override
 	public void eventFired(String eventName, ModelObject source) {
-		if (eventName.equals(CLEAN_STOP)) {
-			++dustCleaned;
-			dustCleanedLabel.setText(getDustStatus());
+		if (eventName.equals(this.CLEAN_STOP)) {
+			++this.dustCleaned;
+			this.dustCleanedLabel.setText(getDustStatus());
 		}
 	}
 
 	public void close() {
-		world.removeListener(this);
-		final JFrame theframe = frame;
+		this.world.removeListener(this);
+		final JFrame theframe = this.frame;
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -93,15 +88,15 @@ public class AppView implements ModelListener, WorldListener {
 
 	public void setVisible(final boolean isVisible) {
 		SwingUtilities.invokeLater(new Runnable() {
+			@Override
 			public void run() {
-				frame.setVisible(isVisible);
+				AppView.this.frame.setVisible(isVisible);
 			}
 		});
 	}
 
 	@Override
 	public void timeChanged(String time) {
-		elapsedTimeLabel.setText(time);
+		this.elapsedTimeLabel.setText(time);
 	}
-
 }
