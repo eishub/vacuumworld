@@ -5,28 +5,30 @@ import grid.GridObject;
 import grid.GridPoint;
 
 public class Dust extends GridObject {
-
 	private final String createEvent = getClass().getName() + "." + CREATE;
 	private int speckCount = 10;
-	
-	public Dust(Grid world, GridPoint location) {
+
+	public Dust(final Grid world, final GridPoint location) {
 		super(world, location);
-		fireEvent(createEvent, this);
+		fireEvent(this.createEvent, this);
 	}
-	
+
+	@Override
 	public String toString() {
 		return "Dust";
 	}
-	
+
 	public int getSpeckCount() {
-		return speckCount;
+		return this.speckCount;
 	}
-	
+
 	public boolean needsCleaning() {
-		return (speckCount > 0);
+		return (this.speckCount > 0);
 	}
-	
+
 	public void cleanOne() {
-		if (this.needsCleaning()) --speckCount;
+		if (needsCleaning()) {
+			--this.speckCount;
+		}
 	}
 }

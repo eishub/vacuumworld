@@ -6,7 +6,6 @@ import grid.Direction;
 import grid.Square;
 
 public class Clean extends Action {
-
 	private final VacBot vacBot;
 	private Square square;
 	private int initialSpeckCount;
@@ -15,56 +14,60 @@ public class Clean extends Action {
 	private Direction rightDirection;
 	private int frameNumber;
 	private Dust dust;
-	
-	protected Clean(VacBot vacBot) {
+
+	protected Clean(final VacBot vacBot) {
 		super(vacBot);
 		this.vacBot = vacBot;
 	}
 
+	@Override
 	protected long duration() {
-		return vacBot.getTimeToClean();
+		return this.vacBot.getTimeToClean();
 	}
 
+	@Override
 	protected void executeOneStep() {
-		++frameNumber;
-		switch (frameNumber) {
+		++this.frameNumber;
+		switch (this.frameNumber) {
 		case 1:
-			vacBot.setDirection(leftDirection);
+			this.vacBot.setDirection(this.leftDirection);
 			break;
 		case 2:
-			vacBot.setDirection(originalDirection);
+			this.vacBot.setDirection(this.originalDirection);
 			break;
 		case 3:
-			vacBot.setDirection(rightDirection);
+			this.vacBot.setDirection(this.rightDirection);
 			break;
 		case 4:
-			vacBot.setDirection(originalDirection);
-			dust.cleanOne();
-			frameNumber = 0;
+			this.vacBot.setDirection(this.originalDirection);
+			this.dust.cleanOne();
+			this.frameNumber = 0;
 		}
 	}
 
+	@Override
 	protected void finalise() {
-		dust.cleanOne();
-		square.remove(dust);
+		this.dust.cleanOne();
+		this.square.remove(this.dust);
 	}
 
+	@Override
 	protected void initialise() throws UnavailableActionException {
-		square = vacBot.getSquare();
-		if (!square.has(Dust.class)) {
+		this.square = this.vacBot.getSquare();
+		if (!this.square.has(Dust.class)) {
 			throw new UnavailableActionException("No dust here!");
 		}
-		dust = (Dust)(square.get(Dust.class));
-		initialSpeckCount = dust.getSpeckCount();
+		this.dust = (Dust) (this.square.get(Dust.class));
+		this.initialSpeckCount = this.dust.getSpeckCount();
 		// Create two directions just to the left and right of current direction
-		originalDirection = vacBot.getDirection();
-		leftDirection = new Direction(originalDirection.getRadians() - 0.06);
-		rightDirection = new Direction(originalDirection.getRadians() + 0.06);
-		frameNumber = 0;
+		this.originalDirection = this.vacBot.getDirection();
+		this.leftDirection = new Direction(this.originalDirection.getRadians() - 0.06);
+		this.rightDirection = new Direction(this.originalDirection.getRadians() + 0.06);
+		this.frameNumber = 0;
 	}
 
+	@Override
 	protected int numberOfSteps() {
-		return initialSpeckCount * 4;
+		return this.initialSpeckCount * 4;
 	}
-
 }

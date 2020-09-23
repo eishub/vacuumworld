@@ -1,10 +1,10 @@
 package grid;
 
 /**
- * Very simple class to encapsulate conversion from relative to absolute Direction.
+ * Very simple class to encapsulate conversion from relative to absolute
+ * Direction.
  */
 public class RelativeDirection {
-	
 	public static final String FORWARD = "forward";
 	public static final String RIGHT = "right";
 	public static final String BACK = "back";
@@ -21,19 +21,19 @@ public class RelativeDirection {
 	public static final RelativeDirection forwardLeft = new RelativeDirection(FORWARD_LEFT, Math.PI * 1.75);
 	// Experimental special value - might want to remove this!
 	public static final RelativeDirection here = new RelativeDirection(HERE, 0);
-	
-	private String name;
-	private double value;
-	
-	private RelativeDirection(String name, double value) {
+
+	private final String name;
+	private final double value;
+
+	private RelativeDirection(final String name, final double value) {
 		this.name = name;
 		this.value = value;
 	}
-	
-	public Direction toAbsolute(Direction currentDirection) {
-		return new Direction(currentDirection.getRadians() + value);
+
+	public Direction toAbsolute(final Direction currentDirection) {
+		return new Direction(currentDirection.getRadians() + this.value);
 	}
-	
+
 	public String getName() {
 		return this.name;
 	}

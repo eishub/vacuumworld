@@ -9,13 +9,13 @@ import java.awt.RadialGradientPaint;
 import java.awt.Stroke;
 
 import grid.Direction;
+import grid.GridObject;
 import grid.ModelListener;
 import grid.ModelObject;
 import vac.VacBot;
 
 public class VacBotView extends GridObjectView implements ModelListener {
-
-	private VacBot vacBot;
+	private final VacBot vacBot;
 	private final Color vacBotColour;
 	private final Color eyeColour;
 	private final Color pupilColour;
@@ -45,148 +45,160 @@ public class VacBotView extends GridObjectView implements ModelListener {
 	private final int wheelPosition;
 	private final int lightRadius;
 	private final int lightDiameter;
-	
-	public VacBotView(GridView parent, VacBot vacBot) {
+
+	public VacBotView(final GridView parent, final VacBot vacBot) {
 		super(parent, vacBot);
 		this.vacBot = vacBot;
 		// Register the view to receive updates from the model
 		vacBot.addListener(this);
 		// Some LookAndFeel methods may return different values each time, so store them
 		// If VacBot does not specify its own colour, choose a default
-		if (vacBot.getColour() == null) vacBotColour = LookAndFeel.getVacBotColour();
-		else vacBotColour = vacBot.getColour();
-		eyeColour = LookAndFeel.getEyeColour();
-		pupilColour = LookAndFeel.getPupilColour();
-		noseColour = LookAndFeel.getNoseColour();
-		lightOffColour = LookAndFeel.getLightOffColour();
-		lightOnColour = LookAndFeel.getLightOnColour();
-		lightWeights = new float[] {(float)0.0, (float)0.4, (float)1.0};
-		lightColours = new Color[] {lightOnColour, lightOnColour, lightOffColour};
-		wheelColour = LookAndFeel.getWheelColour();
-		squareSize = LookAndFeel.getSquareSize();
-		halfSquareSize = squareSize / 2;
-		clearance = LookAndFeel.getVacBotClearance();
-		doubleClearance = clearance * 2;
-		eyeRadius = LookAndFeel.getEyeRadius();
-		eyeDiameter = 2 * eyeRadius;
-		eyePosition = LookAndFeel.getEyePosition();
-		eyeHalfSpacing = LookAndFeel.getEyeSpacing() / 2;
-		pupilRadius = LookAndFeel.getPupilRadius();
-		pupilDiameter = 2 * pupilRadius;
-		pupilOffset = LookAndFeel.getPupilOffset();
-		pupilPosition = eyePosition + pupilOffset;
-		noseRadius = LookAndFeel.getNoseRadius();
-		nosePosition = LookAndFeel.getNosePosition();
-		wheelWidth = LookAndFeel.getWheelWidth();
-		wheelStroke = new BasicStroke(wheelWidth, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
-		wheelRadius = LookAndFeel.getWheelRadius();
-		wheelPosition = LookAndFeel.getWheelPosition();
-		lightRadius = LookAndFeel.getLightRadius();
-		lightDiameter = 2 * lightRadius;
+		if (vacBot.getColour() == null) {
+			this.vacBotColour = LookAndFeel.getVacBotColour();
+		} else {
+			this.vacBotColour = vacBot.getColour();
+		}
+		this.eyeColour = LookAndFeel.getEyeColour();
+		this.pupilColour = LookAndFeel.getPupilColour();
+		this.noseColour = LookAndFeel.getNoseColour();
+		this.lightOffColour = LookAndFeel.getLightOffColour();
+		this.lightOnColour = LookAndFeel.getLightOnColour();
+		this.lightWeights = new float[] { (float) 0.0, (float) 0.4, (float) 1.0 };
+		this.lightColours = new Color[] { this.lightOnColour, this.lightOnColour, this.lightOffColour };
+		this.wheelColour = LookAndFeel.getWheelColour();
+		this.squareSize = LookAndFeel.getSquareSize();
+		this.halfSquareSize = this.squareSize / 2;
+		this.clearance = LookAndFeel.getVacBotClearance();
+		this.doubleClearance = this.clearance * 2;
+		this.eyeRadius = LookAndFeel.getEyeRadius();
+		this.eyeDiameter = 2 * this.eyeRadius;
+		this.eyePosition = LookAndFeel.getEyePosition();
+		this.eyeHalfSpacing = LookAndFeel.getEyeSpacing() / 2;
+		this.pupilRadius = LookAndFeel.getPupilRadius();
+		this.pupilDiameter = 2 * this.pupilRadius;
+		this.pupilOffset = LookAndFeel.getPupilOffset();
+		this.pupilPosition = this.eyePosition + this.pupilOffset;
+		this.noseRadius = LookAndFeel.getNoseRadius();
+		this.nosePosition = LookAndFeel.getNosePosition();
+		this.wheelWidth = LookAndFeel.getWheelWidth();
+		this.wheelStroke = new BasicStroke(this.wheelWidth, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+		this.wheelRadius = LookAndFeel.getWheelRadius();
+		this.wheelPosition = LookAndFeel.getWheelPosition();
+		this.lightRadius = LookAndFeel.getLightRadius();
+		this.lightDiameter = 2 * this.lightRadius;
 	}
-	
-	public void eventFired(String eventName, ModelObject source) {
-		if (eventName.equals(VacBot.PAINT)) {
+
+	@Override
+	public void eventFired(final String eventName, final ModelObject source) {
+		if (eventName.equals(GridObject.PAINT)) {
 			// Paint events will always be triggered by Swing itself, so call paint directly
-			paint(parent.getG2d());
-		} else if (eventName.equals(VacBot.LIGHT_ON)
-				|| eventName.equals(VacBot.LIGHT_OFF)) {
+			paint(this.parent.getG2d());
+		} else if (eventName.equals(VacBot.LIGHT_ON) || eventName.equals(VacBot.LIGHT_OFF)) {
 			// Calculate the repaint region for the light
-			int xCentre = getUpperLeft().x + halfSquareSize;
-			int yCentre = getUpperLeft().y + halfSquareSize;
-			getParent().repaint(xCentre - lightRadius, yCentre - lightRadius,
-					lightDiameter, lightDiameter);
+			final int xCentre = getUpperLeft().x + this.halfSquareSize;
+			final int yCentre = getUpperLeft().y + this.halfSquareSize;
+			getParent().repaint(xCentre - this.lightRadius, yCentre - this.lightRadius, this.lightDiameter,
+					this.lightDiameter);
 		} else if (eventName.endsWith(".step") || eventName.endsWith(".stop")) {
 			// Repaint the whole VacBot and its square
-			getParent().repaint(getUpperLeft().x, getUpperLeft().y, squareSize, squareSize);
-		}
-	}
-	
-	public void paint(Graphics g) {
-		// Cast to Graphics2D to enable gradient fill and other features
-		Graphics2D g2d = (Graphics2D)g;
-		
-		// Set up some local variables, in an attempt to make this more readable
-		int xTopLeft = getUpperLeft().x;
-		int yTopLeft = getUpperLeft().y;
-		int xCentre = xTopLeft + halfSquareSize;
-		int yCentre = yTopLeft + halfSquareSize;
-		Direction direction = vacBot.getDirection();
-		// x and y components of the current direction
-		double xDirection = direction.getXComponent();
-		double yDirection = direction.getYComponent();
-	
-		// Draw the wheels
-		Stroke oldStroke = g2d.getStroke();
-		g2d.setStroke(wheelStroke);
-		g2d.setColor(wheelColour);
-		g2d.drawLine(xCentre - (int)Math.round(wheelRadius * xDirection)
-				- (int)Math.round(wheelPosition * yDirection),
-				yCentre - (int)Math.round(wheelRadius * yDirection)
-				+ (int)Math.round(wheelPosition * xDirection),
-				xCentre + (int)Math.round(wheelRadius * xDirection)
-				- (int)Math.round(wheelPosition * yDirection),
-				yCentre + (int)Math.round(wheelRadius * yDirection)
-				+ (int)Math.round(wheelPosition * xDirection));
-		g2d.drawLine(xCentre + (int)Math.round(wheelRadius * xDirection)
-				+ (int)Math.round(wheelPosition * yDirection),
-				yCentre + (int)Math.round(wheelRadius * yDirection)
-				- (int)Math.round(wheelPosition * xDirection),
-				xCentre - (int)Math.round(wheelRadius * xDirection)
-				+ (int)Math.round(wheelPosition * yDirection),
-				yCentre - (int)Math.round(wheelRadius * yDirection)
-				- (int)Math.round(wheelPosition * xDirection));
-		g2d.setStroke(oldStroke);
-		
-		// Draw the VacBot's main shape
-		g2d.setColor(vacBotColour);
-		g2d.fillOval(xTopLeft + clearance, yTopLeft + clearance,
-				squareSize - doubleClearance, squareSize - doubleClearance);
-		
-		// Indicate which way we are pointing by drawing a face and some wheels
-		// Draw the eyeballs
-		g2d.setColor(eyeColour);
-		g2d.fillOval(xCentre + (int)Math.round(eyePosition * xDirection)
-				+ (int)Math.round(eyeHalfSpacing * yDirection) - eyeRadius,
-				yCentre + (int)Math.round(eyePosition * yDirection)
-				- (int)Math.round(eyeHalfSpacing * xDirection) - eyeRadius,
-				eyeDiameter, eyeDiameter);
-		g2d.fillOval(xCentre + (int)Math.round(eyePosition * xDirection)
-				- (int)Math.round(eyeHalfSpacing * yDirection) - eyeRadius,
-				yCentre + (int)Math.round(eyePosition * yDirection)
-				+ (int)Math.round(eyeHalfSpacing * xDirection) - eyeRadius,
-				eyeDiameter, eyeDiameter);
-		// Draw the pupils
-		g2d.setColor(pupilColour);
-		g2d.fillOval(xCentre + (int)Math.round(pupilPosition * xDirection)
-				+ (int)Math.round(eyeHalfSpacing * yDirection) - pupilRadius,
-				yCentre + (int)Math.round(pupilPosition * yDirection) 
-				- (int)Math.round(eyeHalfSpacing * xDirection) - pupilRadius,
-				pupilDiameter, pupilDiameter);
-		g2d.fillOval(xCentre + (int)Math.round(pupilPosition * xDirection) 
-				- (int)Math.round(eyeHalfSpacing * yDirection) - pupilRadius,
-				yCentre + (int)Math.round(pupilPosition * yDirection) 
-				+ (int)Math.round(eyeHalfSpacing * xDirection) - pupilRadius,
-				pupilDiameter, pupilDiameter);
-		// Draw the nose
-		g2d.setColor(noseColour);
-		g2d.fillOval(xCentre - noseRadius + (int)Math.round(nosePosition * xDirection),
-				yCentre - noseRadius + (int)Math.round(nosePosition * yDirection),
-				noseRadius * 2, noseRadius * 2);
-		
-		// Draw the light
-		if (vacBot.isLightOn()) {
-			// Save the current paint style so we can restore it later
-			Paint oldPaint = g2d.getPaint();
-			// Wide centre in lightOnColour, with the edges fading to lightOffColour
-			g2d.setPaint(new RadialGradientPaint(xCentre, yCentre, lightRadius,	lightWeights, lightColours));
-			g2d.fillOval(xCentre - lightRadius, yCentre - lightRadius, lightDiameter, lightDiameter);
-			// Restore the original paint style
-			g2d.setPaint(oldPaint);
-		} else {
-			g2d.setColor(lightOffColour);
-			g2d.fillOval(xCentre - lightRadius, yCentre - lightRadius, lightDiameter, lightDiameter);
+			getParent().repaint(getUpperLeft().x, getUpperLeft().y, this.squareSize, this.squareSize);
 		}
 	}
 
+	@Override
+	public void paint(final Graphics g) {
+		// Cast to Graphics2D to enable gradient fill and other features
+		final Graphics2D g2d = (Graphics2D) g;
+
+		// Set up some local variables, in an attempt to make this more readable
+		final int xTopLeft = getUpperLeft().x;
+		final int yTopLeft = getUpperLeft().y;
+		final int xCentre = xTopLeft + this.halfSquareSize;
+		final int yCentre = yTopLeft + this.halfSquareSize;
+		final Direction direction = this.vacBot.getDirection();
+		// x and y components of the current direction
+		final double xDirection = direction.getXComponent();
+		final double yDirection = direction.getYComponent();
+
+		// Draw the wheels
+		final Stroke oldStroke = g2d.getStroke();
+		g2d.setStroke(this.wheelStroke);
+		g2d.setColor(this.wheelColour);
+		g2d.drawLine(
+				xCentre - (int) Math.round(this.wheelRadius * xDirection)
+						- (int) Math.round(this.wheelPosition * yDirection),
+				yCentre - (int) Math.round(this.wheelRadius * yDirection)
+						+ (int) Math.round(this.wheelPosition * xDirection),
+				xCentre + (int) Math.round(this.wheelRadius * xDirection)
+						- (int) Math.round(this.wheelPosition * yDirection),
+				yCentre + (int) Math.round(this.wheelRadius * yDirection)
+						+ (int) Math.round(this.wheelPosition * xDirection));
+		g2d.drawLine(
+				xCentre + (int) Math.round(this.wheelRadius * xDirection)
+						+ (int) Math.round(this.wheelPosition * yDirection),
+				yCentre + (int) Math.round(this.wheelRadius * yDirection)
+						- (int) Math.round(this.wheelPosition * xDirection),
+				xCentre - (int) Math.round(this.wheelRadius * xDirection)
+						+ (int) Math.round(this.wheelPosition * yDirection),
+				yCentre - (int) Math.round(this.wheelRadius * yDirection)
+						- (int) Math.round(this.wheelPosition * xDirection));
+		g2d.setStroke(oldStroke);
+
+		// Draw the VacBot's main shape
+		g2d.setColor(this.vacBotColour);
+		g2d.fillOval(xTopLeft + this.clearance, yTopLeft + this.clearance, this.squareSize - this.doubleClearance,
+				this.squareSize - this.doubleClearance);
+
+		// Indicate which way we are pointing by drawing a face and some wheels
+		// Draw the eyeballs
+		g2d.setColor(this.eyeColour);
+		g2d.fillOval(
+				xCentre + (int) Math.round(this.eyePosition * xDirection)
+						+ (int) Math.round(this.eyeHalfSpacing * yDirection) - this.eyeRadius,
+				yCentre + (int) Math.round(this.eyePosition * yDirection)
+						- (int) Math.round(this.eyeHalfSpacing * xDirection) - this.eyeRadius,
+				this.eyeDiameter, this.eyeDiameter);
+		g2d.fillOval(
+				xCentre + (int) Math.round(this.eyePosition * xDirection)
+						- (int) Math.round(this.eyeHalfSpacing * yDirection) - this.eyeRadius,
+				yCentre + (int) Math.round(this.eyePosition * yDirection)
+						+ (int) Math.round(this.eyeHalfSpacing * xDirection) - this.eyeRadius,
+				this.eyeDiameter, this.eyeDiameter);
+		// Draw the pupils
+		g2d.setColor(this.pupilColour);
+		g2d.fillOval(
+				xCentre + (int) Math.round(this.pupilPosition * xDirection)
+						+ (int) Math.round(this.eyeHalfSpacing * yDirection) - this.pupilRadius,
+				yCentre + (int) Math.round(this.pupilPosition * yDirection)
+						- (int) Math.round(this.eyeHalfSpacing * xDirection) - this.pupilRadius,
+				this.pupilDiameter, this.pupilDiameter);
+		g2d.fillOval(
+				xCentre + (int) Math.round(this.pupilPosition * xDirection)
+						- (int) Math.round(this.eyeHalfSpacing * yDirection) - this.pupilRadius,
+				yCentre + (int) Math.round(this.pupilPosition * yDirection)
+						+ (int) Math.round(this.eyeHalfSpacing * xDirection) - this.pupilRadius,
+				this.pupilDiameter, this.pupilDiameter);
+		// Draw the nose
+		g2d.setColor(this.noseColour);
+		g2d.fillOval(xCentre - this.noseRadius + (int) Math.round(this.nosePosition * xDirection),
+				yCentre - this.noseRadius + (int) Math.round(this.nosePosition * yDirection), this.noseRadius * 2,
+				this.noseRadius * 2);
+
+		// Draw the light
+		if (this.vacBot.isLightOn()) {
+			// Save the current paint style so we can restore it later
+			final Paint oldPaint = g2d.getPaint();
+			// Wide centre in lightOnColour, with the edges fading to lightOffColour
+			g2d.setPaint(
+					new RadialGradientPaint(xCentre, yCentre, this.lightRadius, this.lightWeights, this.lightColours));
+			g2d.fillOval(xCentre - this.lightRadius, yCentre - this.lightRadius, this.lightDiameter,
+					this.lightDiameter);
+			// Restore the original paint style
+			g2d.setPaint(oldPaint);
+		} else {
+			g2d.setColor(this.lightOffColour);
+			g2d.fillOval(xCentre - this.lightRadius, yCentre - this.lightRadius, this.lightDiameter,
+					this.lightDiameter);
+		}
+	}
 }

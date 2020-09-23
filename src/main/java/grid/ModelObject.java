@@ -9,59 +9,58 @@ import actions.Action;
  * Top of the model hierarchy.
  */
 public abstract class ModelObject {
-
 	// Allows listeners to be safely added and removed while an event is being
 	// fired
-	protected List<ModelListener> listeners = new CopyOnWriteArrayList<ModelListener>();
+	protected List<ModelListener> listeners = new CopyOnWriteArrayList<>();
 	// Allows percepts to safely read the list of current actions while an
 	// action is finishing
 	protected volatile Action currentAction = null;
 
-	public void addListener(ModelListener listener) {
+	public void addListener(final ModelListener listener) {
 		// FIXME listeners is a set. This allows duplicates to get into the
 		// list.
-		listeners.add(listener);
+		this.listeners.add(listener);
 	}
 
-	public void removeListener(ModelListener listener) {
-		listeners.remove(listener);
+	public void removeListener(final ModelListener listener) {
+		this.listeners.remove(listener);
 	}
 
 	/**
-	 * Indicate that an event has occurred. NB we allow clients to fire events
-	 * on model objects they have updated; hence this method has public (rather
-	 * than protected) access.
-	 * 
-	 * @param eventName
-	 *            Non-empty string, ideally with format
-	 *            fully.qualified.ActionClassName.eventName
-	 * @param source
-	 *            ModelObject that is the logical source of this event.
+	 * Indicate that an event has occurred. NB we allow clients to fire events on
+	 * model objects they have updated; hence this method has public (rather than
+	 * protected) access.
+	 *
+	 * @param eventName Non-empty string, ideally with format
+	 *                  fully.qualified.ActionClassName.eventName
+	 * @param source    ModelObject that is the logical source of this event.
 	 */
-	public void fireEvent(String eventName, ModelObject source) {
-		if (eventName == null || eventName.isEmpty())
+	public void fireEvent(final String eventName, ModelObject source) {
+		if (eventName == null || eventName.isEmpty()) {
 			throw new IllegalArgumentException("Event name cannot be empty.");
-		if (source == null)
+		}
+		if (source == null) {
 			source = this;
-		for (ModelListener listener : listeners) {
+		}
+		for (final ModelListener listener : this.listeners) {
 			listener.eventFired(eventName, source);
 		}
 	}
 
 	/**
 	 * Indicate that an event has occurred.
-	 * 
+	 *
 	 * @param eventName
 	 */
-	protected void fireEvent(String eventName) {
-		this.fireEvent(eventName, this);
+	protected void fireEvent(final String eventName) {
+		fireEvent(eventName, this);
 	}
 
-	public void setAction(Action action) {
-		currentAction = action;
+	public void setAction(final Action action) {
+		this.currentAction = action;
 	}
 
 	public Action getAction() {
-		return currentAction;
+		return this.currentAction;
 	}
 }

@@ -1,26 +1,23 @@
 package ei;
 
-import java.util.HashMap;
 import java.util.Map;
 
-import util.config.Configuration;
-import vac.VacBot;
-import vac.VacWorld;
 import eis.AbstractEISInterface;
 import eis.exceptions.EntityException;
 import eis.exceptions.ManagementException;
 import eis.iilang.EnvironmentState;
 import eis.iilang.Identifier;
 import eis.iilang.Parameter;
+import util.config.Configuration;
+import vac.VacBot;
+import vac.VacWorld;
 
 public class Ei extends AbstractEISInterface {
-
 	private static final long serialVersionUID = 6104242799596441135L;
-	VacWorld world;
-	final Map<String, VacBot> vacBots = new HashMap<String, VacBot>();
+
+	private VacWorld world;
 
 	public Ei() {
-
 	}
 
 	enum configKeys {
@@ -37,17 +34,14 @@ public class Ei extends AbstractEISInterface {
 	}
 
 	@Override
-	public void init(Map<String, Parameter> parameters)
-			throws ManagementException {
+	public void init(final Map<String, Parameter> parameters) throws ManagementException {
+		reset(parameters);
 
-		this.reset(parameters);
-
-		for (VacBot vacBot : world.getVacBots()) {
+		for (final VacBot vacBot : this.world.getVacBots()) {
 			try {
 				addEntity(new VacBotEntity(vacBot));
-			} catch (EntityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (final EntityException e) {
+				e.printStackTrace(); // TODO
 			}
 		}
 		addAction(new EisLight());
@@ -57,42 +51,39 @@ public class Ei extends AbstractEISInterface {
 
 	@Override
 	public void pause() throws ManagementException {
-		world.setRunning(false);
+		this.world.setRunning(false);
 		super.pause();
 	}
 
 	@Override
 	public void start() throws ManagementException {
-		world.setRunning(true);
+		this.world.setRunning(true);
 		super.start();
 	}
 
 	@Override
-	public void reset(Map<String, Parameter> parameters)
-			throws ManagementException {
+	public void reset(final Map<String, Parameter> parameters) throws ManagementException {
 		closeWorld();
 		if (parameters.containsKey(configKeys.configfile.toString())) {
-			Parameter fileparam = parameters.get(configKeys.configfile
-					.toString());
-			world = VacWorld.createFromConfig(((Identifier) fileparam)
-					.getValue());
+			final Parameter fileparam = parameters.get(configKeys.configfile.toString());
+			this.world = VacWorld.createFromConfig(((Identifier) fileparam).getValue());
 		} else {
-			world = VacWorld.createVacWorld(toConfiguration(parameters));
+			this.world = VacWorld.createVacWorld(toConfiguration(parameters));
 		}
 
-		world.show();
+		this.world.show();
 
-		world.setRunning(false);
-		this.setState(EnvironmentState.PAUSED);
+		this.world.setRunning(false);
+		setState(EnvironmentState.PAUSED);
 	}
 
 	/**
 	 * Close old world if it's still open.
 	 */
 	private void closeWorld() {
-		if (world != null) {
-			world.close();
-			world = null;
+		if (this.world != null) {
+			this.world.close();
+			this.world = null;
 		}
 	}
 
@@ -102,26 +93,23 @@ public class Ei extends AbstractEISInterface {
 		setState(EnvironmentState.KILLED);
 	}
 
-	// TODO: support percepts as notifications
-
 	/**
 	 * creates a {@link Configuration} from the EIS parameters..
-	 * 
+	 *
 	 * @param parameters
 	 * @return
 	 */
-	private Configuration toConfiguration(Map<String, Parameter> parameters) {
+	private Configuration toConfiguration(final Map<String, Parameter> parameters) {
 		// load default config
-		Configuration config = new Configuration();
+		final Configuration config = new Configuration();
 		config.put(configKeys.level.toString(), "4");
 		config.put(configKeys.regeneration.toString(), "no");
 
 		// copy our parameter values.
-		for (String param : parameters.keySet()) {
-			String value = ((Identifier) parameters.get(param)).getValue();
+		for (final String param : parameters.keySet()) {
+			final String value = ((Identifier) parameters.get(param)).getValue();
 			config.put(param, value);
 		}
 		return config;
 	}
-
 }

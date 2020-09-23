@@ -1,10 +1,9 @@
 package actions;
 
-@SuppressWarnings("serial")
 public class UnavailableActionException extends Exception {
+	private static final long serialVersionUID = 1L;
 
-	public UnavailableActionException(String message) {
+	public UnavailableActionException(final String message) {
 		super(message);
 	}
-
 }
