@@ -34,7 +34,7 @@ A config file is basically a Properties file, containing two lines (no commas). 
 
 ## VacBots
 
-**Decco**, **Harry**, **Henry**, **Lloyd**, **Keano**, **Stevo**, **Benjy**, and **Darth** are the names of available VacBots in the Vacuum World. Note that, in the default configuration, only the first four of these are available.
+**Decco**, **Harry**, **Henry**, **Lloyd**, **Keano**, **Stevo**, **Benjy**, and **Darth** are the names of available VacBots in the Vacuum World. Their entity type is **vacbot**. Note that, in the default configuration, only the first four of these are available.
 
 ### Actions
 VacBots can **turn**, **move** around the grid, **clean** dust, and **flash** their warning lights:
