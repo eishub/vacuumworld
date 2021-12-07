@@ -8,7 +8,7 @@ The vacuum environment is a 2-dimensional grid world, populated with fixed obsta
 
 In the default configuration, the size of the world is 16 x 8 squares; there are 8 randomly-placed obstacles, 32 random dusty squares, and 4 randomly-placed VacBots. Dust, once cleaned, does not regenerate. This default configuration can be changed by editing the file `ita.conf`, which also includes documentation for each configuration option.
 
-You can use the init parameters to set the configuration file. The init parameters are
+You can use the init parameters to set the configuration file. The init parameters are:
 
 | parameter name | description |
 |:---------------|:------------|
@@ -50,10 +50,10 @@ All actions except for **light** take some time to complete, during which any ot
 
 VacBots receive the following percepts:
 
-* **location(Numeral, Numeral)**: The VacBot’s current location on the grid, in (X,Y) coordinates. The square in the top left corner is numbered (0,0). This percept is only available when the VacBot is not moving between squares.
-* **direction(Identifier)**: The VacBot’s current absolute direction, one of **north**, **south**, **east**, or **west**. This percept is only available when the VacBot is not turning or cleaning.
+* **location(Numeral, Numeral)**: The VacBot’s current location on the grid, in (X,Y) coordinates. The square in the top left corner is numbered (0,0).
+* **direction(Identifier)**: The VacBot’s current absolute direction, one of **north**, **south**, **east**, or **west**.
 * **light(Identifier)**: The status of the Vacbot’s light, either **on** or **off**.
-* **square(Identifier squareName, Identifier squareContents)**: Six instances of this percept represent the VacBot’s field of vision. The square name is one of **left**, **forwardLeft**, **forward**, **forwardRight**, **right**, or **here**. The square contents is one of **obstacle**, **vac**, **dust**, or **empty**. Note that if the VacBot perceives another VacBot occupying a dusty square, the square contents will take the value **vac**. Note also that the VacBot does not perceive itself; the square contents for the square **here** is always either **dust** or **empty**. 
+* **square(Identifier squareName, Identifier squareContents)**: Six instances of this percept represent the VacBot’s field of vision. The square name is one of **left**, **forwardLeft**, **forward**, **forwardRight**, **right**, or **here**. The square contents is one of **obstacle**, **vac**, **dust**, or **empty**. Note that if the VacBot perceives another VacBot occupying a dusty square, the square contents will take the value **vac**. Also note that the VacBot does not perceive itself; the square contents for the square **here** is always either **dust** or **empty**. 
 * **task(Identifier)**: The VacBot’s current task. The possible tasks are **turn**, **move**, and **clean**; or **none** if the VacBot is idle.
 
 The **location**, **direction** and **square** percepts are only updated when the VacBot is not currently moving, turning, or cleaning.
