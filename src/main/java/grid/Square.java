@@ -1,7 +1,7 @@
 package grid;
 
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class Square {
 	// Maintain a thread-safe stack of GridObjects
-	private final List<GridObject> gridObjects = new ArrayList<>();
+	private final List<GridObject> gridObjects = new LinkedList<>();
 	public final GridPoint location;
 
 	/**

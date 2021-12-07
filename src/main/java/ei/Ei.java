@@ -26,7 +26,6 @@ public class Ei extends AbstractEISInterface {
 		 * The level, either a map name or a number.
 		 */
 		level,
-
 		/**
 		 * true or false. To be replaced with string
 		 */

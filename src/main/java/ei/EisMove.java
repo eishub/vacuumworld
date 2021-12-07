@@ -15,6 +15,7 @@ public class EisMove extends AbstractEISEntityAction {
 		addType("vacbot");
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void act(final String entity, final Action action) throws ActException {
 		final VacBotEntity vacBotEntity = getEntity(entity, VacBotEntity.class);
@@ -58,12 +59,7 @@ public class EisMove extends AbstractEISEntityAction {
 		try {
 			vacBot.move(steps, directionToMove);
 			// return new Percept("success");
-		} catch (final InterruptedException e) {
-			// return new Percept("bump", new Identifier("Move was interrupted!"));
-		} catch (final ImpossibleActionException e) {
-			// return new Percept("bump", new Identifier("Move into permanent obstacle not
-			// possible."));
-		} catch (final UnavailableActionException e) {
+		} catch (final InterruptedException | ImpossibleActionException | UnavailableActionException e) {
 			// return new Percept("bump", new Identifier("Move into moveable object not
 			// possible - seems another VacBot in the way"));
 		}

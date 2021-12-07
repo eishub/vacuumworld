@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.Timer;
@@ -38,12 +39,12 @@ public class VacWorld implements ModelListener {
 	private static final String configRegeneration = "generation";
 
 	private static final int defaultSize = 4;
+
 	/**
 	 * probability that cell gets new dust added in a second. <= 0 means never add
 	 * dust. Handled from the oneSecondTimer.
 	 */
 	private double P = -1;
-
 	/**
 	 * re-generation time of dust in seconds. Anything <0 means do not re-generate.
 	 * handled from ModelListener callback.
@@ -54,13 +55,10 @@ public class VacWorld implements ModelListener {
 
 	private VacBot[] vacBots = null;
 	public final Grid grid;
-
-	// timer for generating new dust and advancing the clock
-	private TimerWithPause oneSecondTimer = null;
 	private AppView view;
 
+	private TimerWithPause oneSecondTimer = null; // timer for generating new dust and advancing the clock
 	private Timer regenerateTimer = null; // timer for regeneration of dust.
-
 	private boolean isRunning = false; // runmode. false=paused; true=running.
 
 	private int elapsedSeconds = 0;
@@ -185,7 +183,7 @@ public class VacWorld implements ModelListener {
 	 */
 	public VacWorld(final InputStream in) throws IOException, InvalidVacWorldException {
 		// Read the given input into a list of strings
-		final List<String> lines = new ArrayList<>();
+		final List<String> lines = new LinkedList<>();
 		final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 		String fileLine;
 		while ((fileLine = reader.readLine()) != null) {
@@ -204,10 +202,8 @@ public class VacWorld implements ModelListener {
 		for (final String configLine : lines) {
 			if (sizeX < 0) {
 				sizeX = configLine.length();
-			} else {
-				if (configLine.length() != sizeX) {
-					throw new InvalidVacWorldException("Grid must be a rectangle!");
-				}
+			} else if (configLine.length() != sizeX) {
+				throw new InvalidVacWorldException("Grid must be a rectangle!");
 			}
 		}
 		if (sizeX < 2) {
@@ -215,10 +211,19 @@ public class VacWorld implements ModelListener {
 		}
 
 		// Populate the grid
-		final List<VacBot> vacBots = new ArrayList<>();
 		this.grid = new Grid(sizeX, sizeY);
-		for (int i = 0; i < sizeX; i++) {
-			for (int j = 0; j < sizeY; j++) {
+
+		populateGrid(lines);
+	}
+
+	public VacBot[] getVacBots() {
+		return this.vacBots;
+	}
+
+	private void populateGrid(final List<String> lines) throws InvalidVacWorldException {
+		final List<VacBot> vacBots = new ArrayList<>();
+		for (int i = 0; i < this.grid.sizeX; i++) {
+			for (int j = 0; j < this.grid.sizeY; j++) {
 				final Square square = this.grid.getSquareAt(new GridPoint(i, j));
 				final char c = lines.get(j).charAt(i);
 				switch (c) {
@@ -254,7 +259,10 @@ public class VacWorld implements ModelListener {
 		if (vacBots.size() < 1) {
 			throw new InvalidVacWorldException("World must have at least 1 VacBot!");
 		}
-		this.vacBots = vacBots.toArray(new VacBot[0]);
+		this.vacBots = vacBots.toArray(new VacBot[vacBots.size()]);
+		for (final VacBot vacBot : this.vacBots) {
+			vacBot.start();
+		}
 	}
 
 	private boolean addVacBot(final List<VacBot> vacBots, final Square square, final String d) {
@@ -282,11 +290,7 @@ public class VacWorld implements ModelListener {
 		return addVacBot(vacBots, square, d);
 	}
 
-	public VacBot[] getVacBots() {
-		return this.vacBots;
-	}
-
-	void addRandomDust(final int targetDustCount) {
+	private void addRandomDust(final int targetDustCount) {
 		if (targetDustCount < 0) {
 			throw new IllegalArgumentException("Too small: " + targetDustCount);
 		}
@@ -310,7 +314,7 @@ public class VacWorld implements ModelListener {
 		}
 	}
 
-	void addRandomObstructions(final int targetObstructionCount) {
+	private void addRandomObstructions(final int targetObstructionCount) {
 		final Iterator<Square> iterator = this.grid.randomIterator();
 		int currentObstructionCount = 0;
 		while (currentObstructionCount < targetObstructionCount) {
@@ -328,7 +332,7 @@ public class VacWorld implements ModelListener {
 		}
 	}
 
-	void addRandomVacBots(final int targetVacBotCount) {
+	private void addRandomVacBots(final int targetVacBotCount) {
 		if (targetVacBotCount > 8) {
 			throw new IllegalArgumentException("VacWorld can support at most 8 VacBots.");
 		}
@@ -349,11 +353,13 @@ public class VacWorld implements ModelListener {
 			vacBots.add(new VacBot(this.grid, square.location, Direction.random(), LookAndFeel.getVacBotName(),
 					LookAndFeel.getVacBotColour()));
 			// TODO: depending on config, attach an event logger to each VacBot
-			// new StreamEventLogger(vacBots.get(currentVacBotCount),
-			// System.out);
+			// new StreamEventLogger(vacBots.get(currentVacBotCount), System.out);
 			++currentVacBotCount;
 		}
-		this.vacBots = vacBots.toArray(new VacBot[0]);
+		this.vacBots = vacBots.toArray(new VacBot[vacBots.size()]);
+		for (final VacBot vacBot : this.vacBots) {
+			vacBot.start();
+		}
 	}
 
 	// TODO: remove this dependency on gui.AppView
@@ -370,7 +376,16 @@ public class VacWorld implements ModelListener {
 			this.oneSecondTimer.cancel();
 			this.oneSecondTimer = null;
 		}
+
+		for (final VacBot vacBot : this.vacBots) {
+			vacBot.kill();
+		}
+		this.vacBots = null;
+
 		this.view.close();
+		this.view = null;
+
+		this.isRunning = false;
 	}
 
 	/**
@@ -406,10 +421,8 @@ public class VacWorld implements ModelListener {
 		final Iterator<Square> gridpoints = this.grid.squareIterator();
 		while (gridpoints.hasNext()) {
 			final Square square = gridpoints.next();
-			if (square.getCount() == 0) {
-				if (Math.random() < this.P) {
-					new Dust(this.grid, square.location);
-				}
+			if ((square.getCount() == 0) && (Math.random() < this.P)) {
+				new Dust(this.grid, square.location);
 			}
 		}
 	}

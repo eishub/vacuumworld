@@ -3,8 +3,14 @@ package vac;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
+import actions.Action;
 import actions.ImpossibleActionException;
+import actions.Light;
+import actions.Move;
+import actions.Turn;
 import actions.UnavailableActionException;
 import grid.Direction;
 import grid.Grid;
@@ -18,7 +24,6 @@ public class VacBot extends MovingObject {
 	// VacBot light events
 	public static final String LIGHT_ON = "Light on";
 	public static final String LIGHT_OFF = "Light off";
-
 	// Time in milliseconds to turn full circle, move one square, and clean,
 	// respectively
 	private final long timeToTurn = 2000;
@@ -28,34 +33,82 @@ public class VacBot extends MovingObject {
 	private final Color colour;
 	private boolean lightOn = false;
 
+	// action queue
+	private volatile boolean isAlive = true;
+	private final Queue<Action> pendingActions;
+
 	public VacBot(final Grid grid, final GridPoint startPoint, final Direction direction, final String name,
 			final Color colour) {
 		super(grid, startPoint, direction);
 		this.name = name;
 		this.colour = colour;
+		this.pendingActions = new ConcurrentLinkedQueue<>();
 	}
 
 	public String getName() {
 		return this.name;
 	}
 
-	public void clean() throws InterruptedException, UnavailableActionException {
-		try {
-			new Clean(this).execute();
-		} catch (final ImpossibleActionException e) {
-			// Cleaning is never impossible - dust could potentially be added later to any
-			// square.
+	public void start() {
+		new Thread(() -> {
+			while (VacBot.this.isAlive) {
+				if (VacBot.this.pendingActions.isEmpty()) {
+					synchronized (VacBot.this) {
+						try {
+							wait();
+						} catch (final InterruptedException ignore) {
+						}
+					}
+				} else {
+					final Action next = VacBot.this.pendingActions.poll();
+					try {
+						next.execute();
+					} catch (InterruptedException | ImpossibleActionException | UnavailableActionException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}).start();
+	}
+
+	private void signalNewAction() {
+		synchronized (VacBot.this) {
+			notifyAll();
 		}
+	}
+
+	public void kill() {
+		this.isAlive = false;
+		signalNewAction(); // to break the wait()
+	}
+
+	@Override
+	public void move(final int steps, final Direction moveDirection)
+			throws InterruptedException, ImpossibleActionException, UnavailableActionException {
+		if (steps < 0) {
+			throw new IllegalArgumentException("Cannot move a negative number of steps.");
+		}
+		if (!this.direction.equalsDirection(moveDirection)) {
+			this.pendingActions.add(new Turn(this, moveDirection));
+		}
+		for (int i = 0; i < steps; i++) {
+			this.pendingActions.add(new Move(this));
+		}
+		signalNewAction();
+	}
+
+	public void clean() {
+		this.pendingActions.add(new Clean(this));
+		signalNewAction();
+	}
+
+	public void light(final boolean lightOn) {
+		this.pendingActions.add(new Light(this, lightOn));
+		signalNewAction();
 	}
 
 	public void setLightOn(final boolean lightOn) {
 		this.lightOn = lightOn;
-		// Fire a light state change (i.e. on/off) event
-		if (lightOn) {
-			this.fireEvent(LIGHT_ON);
-		} else {
-			this.fireEvent(LIGHT_OFF);
-		}
 	}
 
 	public boolean isLightOn() {
@@ -83,10 +136,7 @@ public class VacBot extends MovingObject {
 	@Override
 	public GridObject getObstruction(final Square square) {
 		final GridObject obstruction = square.get(GridObject.class);
-		if (obstruction != null) {
-			return obstruction;
-		}
-		return square.get(VacBot.class);
+		return (obstruction == null) ? square.get(VacBot.class) : obstruction;
 	}
 
 	public long getTimeToClean() {

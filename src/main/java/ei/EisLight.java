@@ -10,6 +10,7 @@ public class EisLight extends AbstractEISEntityAction {
 		addType("vacbot");
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void act(final String entity, final Action action) throws ActException {
 		final VacBotEntity vacBotEntity = getEntity(entity, VacBotEntity.class);
@@ -20,9 +21,9 @@ public class EisLight extends AbstractEISEntityAction {
 		// can we do better?
 		final String state = action.getParameters().get(0).toProlog();
 		if (state.equalsIgnoreCase("on")) {
-			vacBotEntity.bot.setLightOn(true);
+			vacBotEntity.bot.light(true);
 		} else if (state.equalsIgnoreCase("off")) {
-			vacBotEntity.bot.setLightOn(false);
+			vacBotEntity.bot.light(false);
 		} else {
 			throw new ActException(ActException.FAILURE, "Cannot set the light state to \"" + state + "\".");
 		}
