@@ -31,7 +31,6 @@ The file contains the contents of the map grid, one character per grid point, on
 ### Config File
 A config file is basically a Properties file, containing two lines (no commas). One line must be "level = ...", the other "generate = ..." (without the double quotes), just like you would in the MAS file but *without the double quotes*.
 
-
 ## VacBots
 
 **Decco**, **Harry**, **Henry**, **Lloyd**, **Keano**, **Stevo**, **Benjy**, and **Darth** are the names of available VacBots in the Vacuum World. Their entity type is **vacbot**. Note that, in the default configuration, only the first four of these are available.
@@ -39,11 +38,13 @@ A config file is basically a Properties file, containing two lines (no commas). 
 ### Actions
 VacBots can **turn**, **move** around the grid, **clean** dust, and **flash** their warning lights:
 
-* **move(Identifier)**: Moves the VacBot one square in the specified direction, turning it first if necessary. Valid directions can be absolute (**north**, **south**, **east**, or **west**) or relative (**forward**, **left**, **right**, or **back*). The VacBot carries out the requested move on a best-effort basis. If the moving VacBot meets another VacBot, a permanent obstacle, or the edge of the grid, it halts.
+* **move(Identifier)**: Moves the VacBot one square in the specified direction, turning it first if necessary. Valid directions can be absolute (**north**, **south**, **east**, or **west**) or relative (**forward**, **left**, **right**, or **back**). The VacBot carries out the requested move on a best-effort basis. If the moving VacBot meets another VacBot, a permanent obstacle, or the edge of the grid, it halts.
 * **move(Identifier, Numeral)**: Moves the VacBot in the specified direction, for the specified distance, turning it first if necessary. Valid directions are specified as for the move action above. The distance is a positive integer representing the number of squares to be moved; a distance value of 0 can be used to turn the entity without moving. The VacBot carries out the requested move on a best-effort basis. If the moving VacBot meets another VacBot, a permanent obstacle,
 or the edge of the grid, it halts.
 * **light(Identifier)**: Turns the warning light on or off.
 * **clean**: Cleans the square currently occupied by the VacBot, if it is dusty. If the square is already clean, this action returns immediately.
+
+All actions except for **light** take some time to complete, during which any other requested actions are discarded (i.e. ignored).
 
 ### Percepts
 
@@ -55,35 +56,7 @@ VacBots receive the following percepts:
 * **square(Identifier squareName, Identifier squareContents)**: Six instances of this percept represent the VacBot’s field of vision. The square name is one of **left**, **forwardLeft**, **forward**, **forwardRight**, **right**, or **here**. The square contents is one of **obstacle**, **vac**, **dust**, or **empty**. Note that if the VacBot perceives another VacBot occupying a dusty square, the square contents will take the value **vac**. Note also that the VacBot does not perceive itself; the square contents for the square **here** is always either **dust** or **empty**. 
 * **task(Identifier)**: The VacBot’s current task. The possible tasks are **turn**, **move**, and **clean**; or **none** if the VacBot is idle.
 
-All of these percepts except for the **task** percept are only available when the VacBot is not moving, turning, or cleaning.
+The **location**, **direction** and **square** percepts are only updated when the VacBot is not currently moving, turning, or cleaning.
 
-
-## EIS Interface Details
-
-* The **move** actions will return a busy percept if it is invoked while the VacBot is moving or cleaning. If the moving VacBot meets another VacBot, a permanent obstacle, or the edge of the grid, it halts and returns a busy percept. The percept parameter indicates whether the failure was temporary (caused by another VacBot) or permanent (caused by a fixed obstacle or the edge of the grid).
-* The **clean** action will return a busy percept if it is invoked while the VacBot is moving or cleaning.
-It will return a bump percept if there is nothing to clean at that spot.
-* No environment management commands are supported. The environment runs until it is terminated by the user or by the operating system.
-
-## Acknowledgement
+## Acknowledgements
 This environment was developed and provided by [Rem Collier](https://www.csi.ucd.ie/users/rem-collier) and [Howell Jordan](https://www.csi.ucd.ie/users/howell-jordan) from [UCD School of Computer Science and Informatics](https://www.csi.ucd.ie/).
-
-Dependency information 
-=====================
-
-```
-<repository>
-  <id>eishub-mvn-repo</id>
-  <url>https://raw.github.com/eishub/mvn-repo/master</url>
-</repository>
-```
-	
-```	
-<dependency>
-  <groupId>eishub</groupId>
-  <artifactId>vacuumworld</artifactId>
-  <version>1.3.0</version>
-</dependency>
-```
-
-[Documentation](https://goalapl.atlassian.net/wiki/display/ENV/Vacuum+World) for the Vacuum World.
