@@ -14,7 +14,8 @@ You can use the init parameters to set the configuration file. The init paramete
 |:---------------|:------------|
 | configfile | The name of the config file (relative path to the directory containing the vacuumworld jar file). |
 | level | The name of the level. Either a relative path (to the directory containing the vacuumworld jar file) or a string with a number in range [0,8]. If the file is not found, the default 20x12 map is used. |
-| generate | A string indicating the required regeneration pattern. Can have the values "no",  "X s" (regenerates dust X seconds after it's removed) or "P %" (generates dust on every square with a probability of P % per second).  |
+| generate | A string indicating the required regeneration pattern. Can have the values "no",  "X s" (regenerates dust X seconds after it's removed) or "P %" (generates dust on every square with a probability of P % per second). |
+| speed | A number indicating how fast the environment will run (the default is 100, e.g. 100% of the normal speed) |
 
 ### Level file
 Level files are files with a ".vwl" extension. They are usually in the same directory as the vacuumworld jar file.

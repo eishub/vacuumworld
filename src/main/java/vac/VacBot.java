@@ -66,7 +66,7 @@ public class VacBot extends MovingObject {
 					try {
 						next.execute();
 					} catch (InterruptedException | ImpossibleActionException | UnavailableActionException e) {
-						e.printStackTrace();
+						System.out.println(e.getMessage());
 					} finally {
 						this.pendingActions.remove();
 					}
@@ -92,8 +92,7 @@ public class VacBot extends MovingObject {
 	}
 
 	@Override
-	public void move(int steps, final Direction moveDirection)
-			throws InterruptedException, ImpossibleActionException, UnavailableActionException {
+	public void move(int steps, final Direction moveDirection, final int speedFactor) {
 		if (steps < 0) {
 			throw new IllegalArgumentException("Cannot move a negative number of steps.");
 		}
@@ -105,16 +104,16 @@ public class VacBot extends MovingObject {
 
 		final Action[] actionList = new Action[steps];
 		if (needTurn) {
-			actionList[0] = new Turn(this, moveDirection);
+			actionList[0] = new Turn(this, moveDirection, speedFactor);
 		}
 		for (int i = (needTurn ? 1 : 0); i < steps; i++) {
-			actionList[i] = new Move(this);
+			actionList[i] = new Move(this, speedFactor);
 		}
 		queueActions(actionList);
 	}
 
-	public void clean() {
-		queueActions(new Clean(this));
+	public void clean(final int speedFactor) {
+		queueActions(new Clean(this, speedFactor));
 	}
 
 	public void light(final boolean lightOn) {

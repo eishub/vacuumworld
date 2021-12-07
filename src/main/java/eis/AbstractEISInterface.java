@@ -112,11 +112,10 @@ public class AbstractEISInterface extends EIDefaultImpl {
 
 		try {
 			action.act(arg0, arg1);
-		} catch (final ActException ae) { // TODO: check in this small change
+		} catch (final ActException ae) {
 			throw ae;
 		} catch (final Throwable th) {
-			th.printStackTrace(); // TODO
-			throw new ActException(ActException.NOTSPECIFIC);
+			throw new ActException(ActException.FAILURE, th.getMessage(), th.getCause());
 		}
 	}
 }

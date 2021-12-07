@@ -1,10 +1,11 @@
 package ei;
 
-import actions.ImpossibleActionException;
-import actions.UnavailableActionException;
 import eis.AbstractEISEntityAction;
 import eis.exceptions.ActException;
 import eis.iilang.Action;
+import eis.iilang.Identifier;
+import eis.iilang.Numeral;
+import eis.iilang.Parameter;
 import grid.Direction;
 import grid.RelativeDirection;
 import vac.VacBot;
@@ -15,7 +16,6 @@ public class EisMove extends AbstractEISEntityAction {
 		addType("vacbot");
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void act(final String entity, final Action action) throws ActException {
 		final VacBotEntity vacBotEntity = getEntity(entity, VacBotEntity.class);
@@ -23,19 +23,27 @@ public class EisMove extends AbstractEISEntityAction {
 			throw new ActException(ActException.WRONGENTITY);
 		}
 
-		if (action.getParameters().size() == 1) {
-			move(vacBotEntity.bot, action.getParameters().get(0).toProlog(), 1);
-		} else if (action.getParameters().size() >= 2) {
-			move(vacBotEntity.bot, action.getParameters().get(0).toProlog(),
-					Integer.parseInt(action.getParameters().get(1).toProlog()));
-		} else {
-			throw new ActException(ActException.FAILURE, "\"Move\" action requires at least one parameter!");
+		String direction = "";
+		if (action.getParameters().size() >= 1 && action.getParameters().get(0) instanceof Identifier) {
+			direction = ((Identifier) action.getParameters().get(0)).getValue();
 		}
+
+		int steps = 1;
+		if (action.getParameters().size() == 2) {
+			final Parameter stepParam = action.getParameters().get(1);
+			if (stepParam instanceof Numeral) {
+				steps = (int) ((Numeral) stepParam).getValue();
+			} else if (stepParam instanceof Identifier) {
+				steps = Integer.parseInt(((Identifier) stepParam).getValue());
+			}
+		}
+
+		move(vacBotEntity.getBot(), direction, steps, vacBotEntity.getSpeedFactor());
 	}
 
-	private void move(final VacBot vacBot, final String directionName, final int steps) throws ActException {
+	private void move(final VacBot vacBot, final String directionName, final int steps, final int speedFactor)
+			throws ActException {
 		Direction directionToMove = null;
-		final Direction currentDirection = vacBot.getDirection();
 		if (directionName.equals(Direction.NORTH)) {
 			directionToMove = Direction.north;
 		} else if (directionName.equals(Direction.SOUTH)) {
@@ -45,23 +53,17 @@ public class EisMove extends AbstractEISEntityAction {
 		} else if (directionName.equals(Direction.WEST)) {
 			directionToMove = Direction.west;
 		} else if (directionName.equals(RelativeDirection.FORWARD)) {
-			directionToMove = RelativeDirection.forward.toAbsolute(currentDirection);
+			directionToMove = RelativeDirection.forward.toAbsolute(vacBot.getDirection());
 		} else if (directionName.equals(RelativeDirection.LEFT)) {
-			directionToMove = RelativeDirection.left.toAbsolute(currentDirection);
+			directionToMove = RelativeDirection.left.toAbsolute(vacBot.getDirection());
 		} else if (directionName.equals(RelativeDirection.RIGHT)) {
-			directionToMove = RelativeDirection.right.toAbsolute(currentDirection);
+			directionToMove = RelativeDirection.right.toAbsolute(vacBot.getDirection());
 		} else if (directionName.equals(RelativeDirection.BACK)) {
-			directionToMove = RelativeDirection.back.toAbsolute(currentDirection);
+			directionToMove = RelativeDirection.back.toAbsolute(vacBot.getDirection());
 		} else {
 			throw new ActException(ActException.FAILURE, "Invalid direction \"" + directionName + "\".");
 		}
 
-		try {
-			vacBot.move(steps, directionToMove);
-			// return new Percept("success");
-		} catch (final InterruptedException | ImpossibleActionException | UnavailableActionException e) {
-			// return new Percept("bump", new Identifier("Move into moveable object not
-			// possible - seems another VacBot in the way"));
-		}
+		vacBot.move(steps, directionToMove, speedFactor);
 	}
 }

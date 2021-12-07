@@ -6,7 +6,7 @@ public class Light extends Action {
 	private final boolean lightOn;
 
 	public Light(final VacBot vacBot, final boolean lightOn) {
-		super(vacBot);
+		super(vacBot, 0);
 		this.lightOn = lightOn;
 	}
 

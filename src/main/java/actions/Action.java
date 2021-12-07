@@ -12,11 +12,12 @@ public abstract class Action {
 	private final String stepEvent = this.actionType + "." + STEP_EVENT;
 	private final String stopEvent = this.actionType + "." + STOP_EVENT;
 	protected final ModelObject modelObject;
+	protected final int speedFactor;
 	protected int currentStep = 0;
-	private long startedAt;
 
-	protected Action(final ModelObject modelObject) {
+	protected Action(final ModelObject modelObject, final int speedFactor) {
 		this.modelObject = modelObject;
+		this.speedFactor = speedFactor;
 	}
 
 	public void execute() throws InterruptedException, ImpossibleActionException, UnavailableActionException {
@@ -33,7 +34,6 @@ public abstract class Action {
 			// so, always cleans up after itself
 			initialise();
 			this.modelObject.fireEvent(this.startEvent, this.modelObject);
-			this.startedAt = System.currentTimeMillis();
 			while (this.currentStep < numberOfSteps()) {
 				++this.currentStep;
 				waitOneStep();
@@ -50,10 +50,9 @@ public abstract class Action {
 	}
 
 	private void waitOneStep() throws InterruptedException {
-		final long nextStepTime = this.startedAt + (this.currentStep * duration() / numberOfSteps());
-		final long sleepTime = nextStepTime - System.currentTimeMillis();
+		final long sleepTime = duration() / numberOfSteps();
 		if (sleepTime > 0) {
-			Thread.sleep(sleepTime);
+			Thread.sleep(Math.round(sleepTime * (100.0 / this.speedFactor)));
 		}
 	}
 

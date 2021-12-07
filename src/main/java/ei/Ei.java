@@ -7,6 +7,7 @@ import eis.exceptions.EntityException;
 import eis.exceptions.ManagementException;
 import eis.iilang.EnvironmentState;
 import eis.iilang.Identifier;
+import eis.iilang.Numeral;
 import eis.iilang.Parameter;
 import util.config.Configuration;
 import vac.VacBot;
@@ -21,26 +22,46 @@ public class Ei extends AbstractEISInterface {
 	}
 
 	enum configKeys {
+		/**
+		 * The path to a config file
+		 */
 		configfile,
 		/**
 		 * The level, either a map name or a number.
 		 */
 		level,
 		/**
-		 * true or false. To be replaced with string
+		 * true or false, to be replaced with string
 		 */
-		regeneration
+		regeneration,
+		/**
+		 * an optional speed factor (100 by default)
+		 */
+		speed
 	}
 
 	@Override
 	public void init(final Map<String, Parameter> parameters) throws ManagementException {
 		reset(parameters);
 
+		int speedFactor = 100; // default=100%
+		final Parameter speedParam = parameters.get(configKeys.speed.name());
+		if (speedParam instanceof Numeral) {
+			speedFactor = (int) ((Numeral) speedParam).getValue();
+		} else if (speedParam instanceof Identifier) {
+			try {
+				speedFactor = Integer.parseInt(((Identifier) speedParam).getValue());
+			} catch (final NumberFormatException e) {
+				throw new ManagementException(speedParam + " is not a whole number!");
+			}
+		}
+		this.world.setSpeedFactor(speedFactor);
+
 		for (final VacBot vacBot : this.world.getVacBots()) {
 			try {
-				addEntity(new VacBotEntity(vacBot));
+				addEntity(new VacBotEntity(vacBot, speedFactor));
 			} catch (final EntityException e) {
-				e.printStackTrace(); // TODO
+				throw new ManagementException("failed to add vacbot '" + vacBot.getName() + "'", e);
 			}
 		}
 		addAction(new EisLight());

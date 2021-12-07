@@ -48,13 +48,23 @@ public class VacBotEntity implements IEISEntity {
 	private static final Identifier itemDust = new Identifier(ITEM_DUST);
 	private static final Identifier itemEmpty = new Identifier(ITEM_EMPTY);
 
-	public final VacBot bot;
+	private final VacBot bot;
+	private final int speedFactor;
 	private Identifier previousLight, previousTask, previousDirection;
 	private List<Numeral> previousLocation;
 	private List<Percept> previousSquares = new ArrayList<>(0);
 
-	public VacBotEntity(final VacBot bot) {
+	public VacBotEntity(final VacBot bot, final int speedFactor) {
 		this.bot = bot;
+		this.speedFactor = speedFactor;
+	}
+
+	public VacBot getBot() {
+		return this.bot;
+	}
+
+	public int getSpeedFactor() {
+		return this.speedFactor;
 	}
 
 	@Override

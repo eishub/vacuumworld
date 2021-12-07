@@ -3,6 +3,7 @@ package ei;
 import eis.AbstractEISEntityAction;
 import eis.exceptions.ActException;
 import eis.iilang.Action;
+import eis.iilang.Identifier;
 
 public class EisLight extends AbstractEISEntityAction {
 	public EisLight() {
@@ -10,22 +11,21 @@ public class EisLight extends AbstractEISEntityAction {
 		addType("vacbot");
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void act(final String entity, final Action action) throws ActException {
 		final VacBotEntity vacBotEntity = getEntity(entity, VacBotEntity.class);
 		if (vacBotEntity == null) {
 			throw new ActException(ActException.WRONGENTITY);
 		}
-		// TODO: this seems a very complicated way to get a boolean parameter -
-		// can we do better?
-		final String state = action.getParameters().get(0).toProlog();
+		// TODO: this is a complicated way to get a boolean parameter
+		String state = "";
+		if (action.getParameters().size() == 1 && action.getParameters().get(0) instanceof Identifier) {
+			state = ((Identifier) action.getParameters().get(0)).getValue();
+		}
 		if (state.equalsIgnoreCase("on")) {
-			vacBotEntity.bot.light(true);
-		} else if (state.equalsIgnoreCase("off")) {
-			vacBotEntity.bot.light(false);
-		} else {
-			throw new ActException(ActException.FAILURE, "Cannot set the light state to \"" + state + "\".");
+			vacBotEntity.getBot().light(true);
+		} else { // just assume off in any other case
+			vacBotEntity.getBot().light(false);
 		}
 	}
 }

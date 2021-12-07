@@ -37,18 +37,11 @@ public abstract class AbstractEISEntityAction implements IEISAction {
 
 	@Override
 	public boolean isEntityAction(final String name) {
-		// Step 1: Check if the entities type is in the type list
-		// and if so, return true
 		try {
-			if (this.types.contains(this.iface.getType(name))) {
-				return true;
-			}
-		} catch (final EntityException e) {
-			e.printStackTrace(); // TODO
+			return this.types.contains(this.iface.getType(name));
+		} catch (final EntityException ignore) {
 			return false;
 		}
-
-		return this.entities.contains(name);
 	}
 
 	@Override

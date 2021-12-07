@@ -7,13 +7,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 
 import actions.Action;
 import actions.Clean;
@@ -34,12 +35,16 @@ import util.config.InvalidConfigurationException;
  * Convenience methods to construct, populate, and show a VacBot grid world.
  */
 public class VacWorld implements ModelListener {
-	private final Set<WorldListener> listeners = new HashSet<>();
+	private final Set<WorldListener> listeners = Collections
+			.newSetFromMap(new ConcurrentHashMap<WorldListener, Boolean>());
 
 	private static final String configLevel = "level";
 	private static final String configRegeneration = "generation";
 
 	private static final int defaultSize = 4;
+	private static final String CLEAN_STOP = Clean.class.getName() + "." + Action.STOP_EVENT;
+
+	private final Grid grid;
 
 	/**
 	 * probability that cell gets new dust added in a second. <= 0 means never add
@@ -52,14 +57,12 @@ public class VacWorld implements ModelListener {
 	 */
 	private double R = -1;
 
-	private final String CLEAN_STOP = Clean.class.getName() + "." + Action.STOP_EVENT;
-
-	private VacBot[] vacBots = null;
-	public final Grid grid;
+	private int speedFactor = 100;
+	private VacBot[] vacBots = {};
 	private AppView view;
 
-	private TimerWithPause oneSecondTimer = null; // timer for generating new dust and advancing the clock
-	private Timer regenerateTimer = null; // timer for regeneration of dust.
+	private TimerWithPause oneSecondTimer; // timer for generating new dust and advancing the clock
+	private Timer regenerateTimer; // timer for regeneration of dust.
 	private boolean isRunning = false; // runmode. false=paused; true=running.
 
 	private int elapsedSeconds = 0;
@@ -83,6 +86,10 @@ public class VacWorld implements ModelListener {
 		this.grid = new Grid(sizeX, sizeY);
 	}
 
+	public void setSpeedFactor(final int speedFactor) {
+		this.speedFactor = speedFactor;
+	}
+
 	/**
 	 * Switch the run mode. Also sets up stuff for re-generators if necessary.
 	 *
@@ -90,31 +97,32 @@ public class VacWorld implements ModelListener {
 	 * @return
 	 */
 	public void setRunning(final boolean run) {
-		this.regenerateTimer = new Timer();
 		this.isRunning = run;
-
-		// Add, but only once. Bit of hack.
-		this.grid.removeListener(this);
-		this.grid.addListener(this);
-
-		if (this.oneSecondTimer == null) {
-			this.oneSecondTimer = new TimerWithPause() {
-
-				@Override
-				protected void onTick() {
-					nextSecond();
-				}
-
-				@Override
-				protected void onFinish() {
-				}
-			};
-		}
-
 		if (run) {
+			this.grid.addListener(this);
+			if (this.regenerateTimer == null) {
+				this.regenerateTimer = new Timer();
+			}
+			if (this.oneSecondTimer == null) {
+				final long interval = Math.round(1000 * (100.0 / this.speedFactor));
+				System.out.println(interval);
+				this.oneSecondTimer = new TimerWithPause(interval, TimerWithPause.DURATION_INFINITY) {
+					@Override
+					protected void onTick() {
+						nextSecond();
+					}
+
+					@Override
+					protected void onFinish() {
+					}
+				};
+			}
 			this.oneSecondTimer.resume();
 		} else {
-			this.oneSecondTimer.pause();
+			this.grid.removeListener(this);
+			if (this.oneSecondTimer != null) {
+				this.oneSecondTimer.pause();
+			}
 		}
 	}
 
@@ -213,7 +221,6 @@ public class VacWorld implements ModelListener {
 
 		// Populate the grid
 		this.grid = new Grid(sizeX, sizeY);
-
 		populateGrid(lines);
 	}
 
@@ -434,7 +441,7 @@ public class VacWorld implements ModelListener {
 	 */
 	@Override
 	public void eventFired(final String eventName, final ModelObject source) {
-		if (eventName.equals(this.CLEAN_STOP) && this.R >= 0) {
+		if (eventName.equals(VacWorld.CLEAN_STOP) && this.R >= 0) {
 			scheduleRegenerateDust();
 		}
 	}
@@ -453,7 +460,7 @@ public class VacWorld implements ModelListener {
 					scheduleRegenerateDust();
 				}
 			}
-		}, Math.round(Math.random() * this.R * 1000.0));
+		}, Math.round(Math.random() * this.R * 1000 * (100.0 / this.speedFactor)));
 
 	}
 
@@ -471,7 +478,6 @@ public class VacWorld implements ModelListener {
 			// Read configuration file
 			configuration.load(configFile);
 			return createVacWorld(configuration);
-
 		} catch (final FileNotFoundException fnfe) {
 			System.out.println("Configuration file \"" + configFile + "\" not found, using defaults.");
 		} catch (final IOException ioe) {
@@ -481,7 +487,7 @@ public class VacWorld implements ModelListener {
 			System.out.println("Config file \"" + configFile + "\" is invalid, using defaults.");
 			ice.printStackTrace();
 		}
-		// Error in config, return a default world
+		// Error in config: return a default world
 		return new VacWorld(defaultSize);
 	}
 
@@ -498,14 +504,13 @@ public class VacWorld implements ModelListener {
 		configuration.requireString(configRegeneration);
 		try {
 			configuration.check();
-		} catch (final InvalidConfigurationException e1) {
+		} catch (final InvalidConfigurationException e) {
 			System.out.println("Invalid configuration " + configuration + ", using defaults.");
-			e1.printStackTrace();
+			e.printStackTrace();
 			return new VacWorld(defaultSize);
 		}
 
 		// if we get here, we have a complete configuration.
-
 		VacWorld world = null;
 		final String level = configuration.getProperty(configLevel);
 
@@ -558,24 +563,16 @@ public class VacWorld implements ModelListener {
 	}
 
 	public void addListener(final WorldListener listener) {
-		synchronized (this.listeners) {
-			this.listeners.add(listener);
-		}
+		this.listeners.add(listener);
 	}
 
 	public void removeListener(final WorldListener listener) {
-		synchronized (this.listeners) {
-			this.listeners.remove(listener);
-		}
+		this.listeners.remove(listener);
 	}
 
 	private void notifyListeners() {
 		for (final WorldListener listener : this.listeners) {
-			try {
-				listener.timeChanged(getTimeStatus());
-			} catch (final Throwable e) {
-				e.printStackTrace();
-			}
+			listener.timeChanged(getTimeStatus());
 		}
 	}
 }

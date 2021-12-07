@@ -17,6 +17,6 @@ public class EisClean extends AbstractEISEntityAction {
 			throw new ActException(ActException.WRONGENTITY);
 		}
 
-		vacBotEntity.bot.clean();
+		vacBotEntity.getBot().clean(vacBotEntity.getSpeedFactor());
 	}
 }

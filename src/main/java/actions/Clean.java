@@ -15,8 +15,8 @@ public class Clean extends Action {
 	private int frameNumber;
 	private Dust dust;
 
-	public Clean(final VacBot vacBot) {
-		super(vacBot);
+	public Clean(final VacBot vacBot, final int speedFactor) {
+		super(vacBot, speedFactor);
 		this.vacBot = vacBot;
 	}
 

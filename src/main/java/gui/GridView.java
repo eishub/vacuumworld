@@ -27,7 +27,6 @@ public class GridView extends JPanel implements ModelListener {
 	private final int xDimension;
 	private final int yDimension;
 	private final Color gridLineColour;
-
 	private final Grid grid;
 	private volatile Graphics2D g2d;
 
@@ -124,7 +123,7 @@ public class GridView extends JPanel implements ModelListener {
 	public void eventFired(final String eventName, final ModelObject source) {
 		if (eventName.equals(this.DUST_CREATED)) {
 			new DustView(this, (Dust) source);
-			this.repaint();
+			repaint();
 		}
 	}
 }

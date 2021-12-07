@@ -18,8 +18,8 @@ public class Move extends Action {
 	private GridPoint startPoint = null;
 	private GridPoint endPoint = null;
 
-	public Move(final MovingObject movingObject) {
-		super(movingObject);
+	public Move(final MovingObject movingObject, final int speedFactor) {
+		super(movingObject, speedFactor);
 		this.movingObject = movingObject;
 		this.grid = movingObject.getGrid();
 	}
@@ -31,10 +31,10 @@ public class Move extends Action {
 
 	@Override
 	protected void executeOneStep() {
-		this.movingObject
-				.setX(this.movingObject.getX() + (this.movingObject.getDirection().getXComponent() / stepsPerSquare));
-		this.movingObject
-				.setY(this.movingObject.getY() + (this.movingObject.getDirection().getYComponent() / stepsPerSquare));
+		final double stepX = (this.movingObject.getDirection().getXComponent() / stepsPerSquare);
+		this.movingObject.setX(this.movingObject.getX() + stepX);
+		final double stepY = (this.movingObject.getDirection().getYComponent() / stepsPerSquare);
+		this.movingObject.setY(this.movingObject.getY() + stepY);
 	}
 
 	/**
@@ -67,14 +67,12 @@ public class Move extends Action {
 			final GridObject obstruction = this.movingObject.getObstruction(endSquare);
 			if (obstruction == null) {
 				endSquare.add(this.movingObject);
+			} else if (obstruction instanceof MovingObject) {
+				throw new UnavailableActionException(
+						"Grid square (" + this.endPoint.x + "," + this.endPoint.y + ") is temporarily obstructed.");
 			} else {
-				if (obstruction instanceof MovingObject) {
-					throw new UnavailableActionException(
-							"Grid square (" + this.endPoint.x + "," + this.endPoint.y + ") is temporarily obstructed.");
-				} else {
-					throw new ImpossibleActionException(
-							"Grid square (" + this.endPoint.x + "," + this.endPoint.y + ") is permanently blocked.");
-				}
+				throw new ImpossibleActionException(
+						"Grid square (" + this.endPoint.x + "," + this.endPoint.y + ") is permanently blocked.");
 			}
 		}
 	}

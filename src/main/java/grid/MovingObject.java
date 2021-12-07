@@ -81,9 +81,9 @@ public abstract class MovingObject extends GridObject {
 	 * @throws UnavailableActionException
 	 * @throws ImpossibleActionException
 	 */
-	public void move(final int steps, final RelativeDirection relativeDirection)
+	public void move(final int steps, final RelativeDirection relativeDirection, final int speedFactor)
 			throws InterruptedException, ImpossibleActionException, UnavailableActionException {
-		move(steps, relativeDirection.toAbsolute(this.direction));
+		move(steps, relativeDirection.toAbsolute(this.direction), speedFactor);
 	}
 
 	/**
@@ -95,15 +95,15 @@ public abstract class MovingObject extends GridObject {
 	 * @throws UnavailableActionException
 	 * @throws ImpossibleActionException
 	 */
-	public void move(final int steps, final Direction moveDirection)
+	public void move(final int steps, final Direction moveDirection, final int speedFactor)
 			throws InterruptedException, ImpossibleActionException, UnavailableActionException {
 		if (steps < 0) {
 			throw new IllegalArgumentException("Cannot move a negative number of steps.");
 		}
 		if (!this.direction.equalsDirection(moveDirection)) {
-			new Turn(this, moveDirection).execute();
+			new Turn(this, moveDirection, speedFactor).execute();
 		}
-		final Move forwardsMove = new Move(this);
+		final Move forwardsMove = new Move(this, speedFactor);
 		for (int i = 0; i < steps; i++) {
 			forwardsMove.execute();
 		}
@@ -121,9 +121,9 @@ public abstract class MovingObject extends GridObject {
 		if (relativeDirection.equals(RelativeDirection.here)) {
 			return new GridPoint((int) Math.round(this.x), (int) Math.round(this.y));
 		} else {
-			return new GridPoint(
-					(int) Math.round(this.x + relativeDirection.toAbsolute(this.direction).getXComponent()),
-					(int) Math.round(this.y + relativeDirection.toAbsolute(this.direction).getYComponent()));
+			final double xStep = relativeDirection.toAbsolute(this.direction).getXComponent();
+			final double yStep = relativeDirection.toAbsolute(this.direction).getYComponent();
+			return new GridPoint((int) Math.round(this.x + xStep), (int) Math.round(this.y + yStep));
 		}
 	}
 }

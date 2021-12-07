@@ -13,10 +13,10 @@ public class Turn extends Action {
 	private long duration = 0;
 	private int numberOfSteps = 0;
 
-	public Turn(final MovingObject movingObject, final Direction targetDirection) {
-		super(movingObject);
-		this.targetDirection = targetDirection;
+	public Turn(final MovingObject movingObject, final Direction targetDirection, final int speedFactor) {
+		super(movingObject, speedFactor);
 		this.movingObject = movingObject;
+		this.targetDirection = targetDirection;
 	}
 
 	@Override
