@@ -12,9 +12,9 @@ You can use the init parameters to set the configuration file. The init paramete
 
 | parameter name | description |
 |:---------------|:------------|
-| configfile | name of config file (relative path to the directory containing the vacuumworld jar file) |
-| level | level name. Either relative path (relative path to the directory containing the vacuumworld jar file), or a string with a number in range [0,8]. If the file is not found, the default 20x12 map is used.|
-| generate | A string indicating the required regeneration pattern. Can have the values "no",  "X s" (regenerates dust X seconds after it's removed) or "P %" (generates dust on every square with a probability of P % per second)  |
+| configfile | The name of the config file (relative path to the directory containing the vacuumworld jar file). |
+| level | The name of the level. Either a relative path (to the directory containing the vacuumworld jar file) or a string with a number in range [0,8]. If the file is not found, the default 20x12 map is used. |
+| generate | A string indicating the required regeneration pattern. Can have the values "no",  "X s" (regenerates dust X seconds after it's removed) or "P %" (generates dust on every square with a probability of P % per second).  |
 
 ### Level file
 Level files are files with a ".vwl" extension. They are usually in the same directory as the vacuumworld jar file.
@@ -25,7 +25,7 @@ The file contains the contents of the map grid, one character per grid point, on
 | whitespace | empty square (can be filled with dust randomly) |
 | . | dust |
 | X | wall |
-| n, e, s, w, N, E, S, W | initial orientations for bots at this place; you can have at most 8 of these in the map. |
+| n, e, s, w, N, E, S, W | initial orientations for bots at this place; you can have at most 8 of these in the map |
 | # as first char | comment line |
 
 ### Config File
