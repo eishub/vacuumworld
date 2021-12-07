@@ -59,4 +59,4 @@ VacBots receive the following percepts:
 The **location**, **direction** and **square** percepts are only updated when the VacBot is not currently moving, turning, or cleaning.
 
 ## Acknowledgements
-This environment was developed and provided by [Rem Collier](https://www.csi.ucd.ie/users/rem-collier) and [Howell Jordan](https://www.csi.ucd.ie/users/howell-jordan) from [UCD School of Computer Science and Informatics](https://www.csi.ucd.ie/).
+This environment was originally developed and provided by [Rem Collier](https://www.csi.ucd.ie/users/rem-collier) and [Howell Jordan](https://www.csi.ucd.ie/users/howell-jordan) from [UCD School of Computer Science and Informatics](https://www.csi.ucd.ie/).
