@@ -10,10 +10,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
 import actions.Action;
+import actions.Clean;
 import grid.Grid;
 import grid.ModelListener;
 import grid.ModelObject;
-import vac.Clean;
 import vac.VacWorld;
 import vac.WorldListener;
 

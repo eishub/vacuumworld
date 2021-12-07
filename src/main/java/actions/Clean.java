@@ -1,9 +1,9 @@
-package vac;
+package actions;
 
-import actions.Action;
-import actions.UnavailableActionException;
 import grid.Direction;
 import grid.Square;
+import vac.Dust;
+import vac.VacBot;
 
 public class Clean extends Action {
 	private final VacBot vacBot;
@@ -15,7 +15,7 @@ public class Clean extends Action {
 	private int frameNumber;
 	private Dust dust;
 
-	protected Clean(final VacBot vacBot) {
+	public Clean(final VacBot vacBot) {
 		super(vacBot);
 		this.vacBot = vacBot;
 	}

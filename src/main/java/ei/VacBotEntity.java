@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import actions.Action;
+import actions.Clean;
 import actions.Move;
 import actions.Turn;
 import eis.IEISEntity;
@@ -14,7 +15,6 @@ import eis.iilang.Numeral;
 import eis.iilang.Percept;
 import grid.GridObject;
 import grid.Square;
-import vac.Clean;
 import vac.Dust;
 import vac.PerceptSquare;
 import vac.VacBot;
@@ -92,34 +92,24 @@ public class VacBotEntity implements IEISEntity {
 			this.previousTask = task;
 		}
 
-		if (!task.equals(taskMove)) {
-			final List<Numeral> location = getLocation();
-			if (this.previousLocation == null) {
-				addList.add(new Percept(PERCEPT_LOCATION, location.get(0), location.get(1)));
-				this.previousLocation = location;
-			} else if (!this.previousLocation.equals(location)) {
-				delList.add(new Percept(PERCEPT_LOCATION, this.previousLocation.get(0), this.previousLocation.get(1)));
-				addList.add(new Percept(PERCEPT_LOCATION, location.get(0), location.get(1)));
-				this.previousLocation = location;
-			}
-		} else if (this.previousLocation != null) {
+		final List<Numeral> location = getLocation();
+		if (this.previousLocation == null) {
+			addList.add(new Percept(PERCEPT_LOCATION, location.get(0), location.get(1)));
+			this.previousLocation = location;
+		} else if (!this.previousLocation.equals(location) && !task.equals(taskMove)) {
 			delList.add(new Percept(PERCEPT_LOCATION, this.previousLocation.get(0), this.previousLocation.get(1)));
-			this.previousLocation = null;
+			addList.add(new Percept(PERCEPT_LOCATION, location.get(0), location.get(1)));
+			this.previousLocation = location;
 		}
 
-		if (!task.equals(taskTurn) && !task.equals(taskClean)) {
-			final Identifier direction = getDirection();
-			if (this.previousDirection == null) {
-				addList.add(new Percept(PERCEPT_DIRECTION, direction));
-				this.previousDirection = direction;
-			} else if (!this.previousDirection.equals(direction)) {
-				delList.add(new Percept(PERCEPT_DIRECTION, this.previousDirection));
-				addList.add(new Percept(PERCEPT_DIRECTION, direction));
-				this.previousDirection = direction;
-			}
-		} else if (this.previousDirection != null) {
+		final Identifier direction = getDirection();
+		if (this.previousDirection == null) {
+			addList.add(new Percept(PERCEPT_DIRECTION, direction));
+			this.previousDirection = direction;
+		} else if (!this.previousDirection.equals(direction) && !task.equals(taskTurn)) {
 			delList.add(new Percept(PERCEPT_DIRECTION, this.previousDirection));
-			this.previousDirection = null;
+			addList.add(new Percept(PERCEPT_DIRECTION, direction));
+			this.previousDirection = direction;
 		}
 
 		final List<Percept> squares = new LinkedList<>();
@@ -136,22 +126,22 @@ public class VacBotEntity implements IEISEntity {
 				// For now, we use one single-parameter percept, and assume that a perceiving
 				// VacBot cannot 'see' whether a square is clean or dusty, if there is already
 				// another VacBot on it.
-				if (square == null || perceptSquare.getSquare().has(GridObject.class)) {
+				if (square == null || square.has(GridObject.class)) {
 					squares.add(new Percept(PERCEPT_SQUARE, squareName, itemObstacle));
 				} else if (square.has(VacBot.class) && !square.get(VacBot.class).equals(this.bot)) {
 					squares.add(new Percept(PERCEPT_SQUARE, squareName, itemVac));
-				} else if (perceptSquare.getSquare().has(Dust.class)) {
+				} else if (square.has(Dust.class)) {
 					squares.add(new Percept(PERCEPT_SQUARE, squareName, itemDust));
 				} else {
 					squares.add(new Percept(PERCEPT_SQUARE, squareName, itemEmpty));
 				}
 			}
+			addList.addAll(squares);
+			addList.removeAll(this.previousSquares);
+			delList.addAll(this.previousSquares);
+			delList.removeAll(squares);
+			this.previousSquares = squares;
 		}
-		addList.addAll(squares);
-		addList.removeAll(this.previousSquares);
-		delList.addAll(this.previousSquares);
-		delList.removeAll(squares);
-		this.previousSquares = squares;
 
 		return new PerceptUpdate(addList, delList);
 	}

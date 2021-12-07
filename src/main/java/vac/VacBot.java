@@ -2,11 +2,13 @@ package vac;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import actions.Action;
+import actions.Clean;
 import actions.ImpossibleActionException;
 import actions.Light;
 import actions.Move;
@@ -60,51 +62,63 @@ public class VacBot extends MovingObject {
 						}
 					}
 				} else {
-					final Action next = VacBot.this.pendingActions.poll();
+					final Action next = VacBot.this.pendingActions.peek();
 					try {
 						next.execute();
 					} catch (InterruptedException | ImpossibleActionException | UnavailableActionException e) {
 						e.printStackTrace();
+					} finally {
+						this.pendingActions.remove();
 					}
 				}
 			}
 		}).start();
 	}
 
-	private void signalNewAction() {
-		synchronized (VacBot.this) {
-			notifyAll();
+	private void queueActions(final Action... actions) {
+		if (this.pendingActions.isEmpty()) { // ignore the request if we're already doing something
+			Collections.addAll(this.pendingActions, actions);
+			synchronized (VacBot.this) {
+				notifyAll();
+			}
 		}
 	}
 
 	public void kill() {
 		this.isAlive = false;
-		signalNewAction(); // to break the wait()
+		synchronized (VacBot.this) {
+			notifyAll();
+		}
 	}
 
 	@Override
-	public void move(final int steps, final Direction moveDirection)
+	public void move(int steps, final Direction moveDirection)
 			throws InterruptedException, ImpossibleActionException, UnavailableActionException {
 		if (steps < 0) {
 			throw new IllegalArgumentException("Cannot move a negative number of steps.");
 		}
-		if (!this.direction.equalsDirection(moveDirection)) {
-			this.pendingActions.add(new Turn(this, moveDirection));
+
+		final boolean needTurn = !this.direction.equalsDirection(moveDirection);
+		if (needTurn) {
+			++steps;
 		}
-		for (int i = 0; i < steps; i++) {
-			this.pendingActions.add(new Move(this));
+
+		final Action[] actionList = new Action[steps];
+		if (needTurn) {
+			actionList[0] = new Turn(this, moveDirection);
 		}
-		signalNewAction();
+		for (int i = (needTurn ? 1 : 0); i < steps; i++) {
+			actionList[i] = new Move(this);
+		}
+		queueActions(actionList);
 	}
 
 	public void clean() {
-		this.pendingActions.add(new Clean(this));
-		signalNewAction();
+		queueActions(new Clean(this));
 	}
 
 	public void light(final boolean lightOn) {
-		this.pendingActions.add(new Light(this, lightOn));
-		signalNewAction();
+		queueActions(new Light(this, lightOn));
 	}
 
 	public void setLightOn(final boolean lightOn) {

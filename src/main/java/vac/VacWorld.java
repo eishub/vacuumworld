@@ -16,6 +16,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import actions.Action;
+import actions.Clean;
 import grid.Direction;
 import grid.Grid;
 import grid.GridObject;
